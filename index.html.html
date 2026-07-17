@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questionnaire Harii</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #F4F2E9; font-family: 'Montserrat', sans-serif; font-weight: 300; color: #3a3330; min-height: 100vh; padding: 40px 20px; }
+  .container { max-width: 560px; margin: 0 auto; }
+  .header { text-align: center; margin-bottom: 48px; }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; letter-spacing: 0.08em; color: #3a3330; margin-bottom: 8px; }
+  .line { width: 40px; height: 0.5px; background: #A5ABAB; margin: 12px auto; }
+  .slogan { font-size: 10px; letter-spacing: 0.22em; color: #A5ABAB; text-transform: uppercase; }
+  .header-intro { margin-top: 28px; font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; color: #3a3330; line-height: 1.7; }
+  .header-sub { margin-top: 10px; font-size: 12px; color: #A5ABAB; line-height: 1.7; letter-spacing: 0.03em; }
+  .progress-bar { height: 1.5px; background: #CCC3C0; border-radius: 2px; margin-bottom: 40px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #F3D5CF; border-radius: 2px; transition: width 0.4s ease; }
+  .question-card { display: none; animation: fadeIn 0.35s ease; }
+  .question-card.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .question-num { font-size: 10px; letter-spacing: 0.18em; color: #A5ABAB; text-transform: uppercase; margin-bottom: 10px; }
+  .question-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: #3a3330; line-height: 1.5; margin-bottom: 6px; }
+  .question-sub { font-size: 11px; color: #A5ABAB; margin-bottom: 6px; letter-spacing: 0.02em; }
+  .multi-note { font-size: 10px; color: #CCC3C0; margin-bottom: 16px; letter-spacing: 0.04em; }
+  .options { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
+  .option { padding: 13px 16px; border: 0.5px solid #CCC3C0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #3a3330; background: #F4F2E9; transition: all 0.2s ease; letter-spacing: 0.02em; user-select: none; }
+  .option:hover { border-color: #F3D5CF; background: #fdf5f2; }
+  .option.selected { border-color: #F3D5CF; background: #F3D5CF; }
+  .free-label { font-size: 10px; color: #A5ABAB; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; margin-top: 4px; }
+  .text-input { width: 100%; padding: 13px 16px; border: 0.5px solid #CCC3C0; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: 13px; color: #3a3330; background: #F4F2E9; resize: none; outline: none; margin-bottom: 28px; transition: border-color 0.2s; }
+  .text-input:focus { border-color: #F3D5CF; }
+  .text-input::placeholder { color: #CCC3C0; }
+  .scale { display: flex; gap: 8px; margin-bottom: 8px; }
+  .scale-item { flex: 1; aspect-ratio: 1; border: 0.5px solid #CCC3C0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; background: #F4F2E9; transition: all 0.2s; }
+  .scale-item:hover { border-color: #F3D5CF; }
+  .scale-item.selected { background: #F3D5CF; border-color: #F3D5CF; }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 10px; color: #A5ABAB; margin-bottom: 20px; letter-spacing: 0.04em; }
+  .nav { display: flex; gap: 10px; align-items: center; }
+  .btn-next { flex: 1; padding: 14px; background: #3a3330; color: #F4F2E9; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; }
+  .btn-next:hover { opacity: 0.82; }
+  .btn-prev { padding: 14px 16px; background: transparent; color: #A5ABAB; border: 0.5px solid #CCC3C0; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+  .btn-prev:hover { border-color: #3a3330; color: #3a3330; }
+  .results { display: none; text-align: center; padding: 40px 0; }
+  .results.active { display: block; }
+  .results-logo { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: #3a3330; margin-bottom: 16px; }
+  .results-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-style: italic; color: #3a3330; margin-bottom: 12px; }
+  .results-text { font-size: 12px; color: #A5ABAB; line-height: 1.9; margin-bottom: 32px; }
+  .summary { background: white; border-radius: 12px; padding: 24px; text-align: left; margin-bottom: 20px; }
+  .summary-title { font-size: 10px; letter-spacing: 0.14em; color: #A5ABAB; text-transform: uppercase; margin-bottom: 16px; }
+  .summary-item { padding: 9px 0; border-bottom: 0.5px solid #F4F2E9; font-size: 12px; }
+  .summary-item:last-child { border-bottom: none; }
+  .summary-q { color: #A5ABAB; margin-bottom: 3px; font-size: 10px; letter-spacing: 0.04em; }
+  .summary-a { color: #3a3330; line-height: 1.5; }
+  .btn-copy { width: 100%; padding: 14px; background: #F3D5CF; color: #3a3330; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 400; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; }
+  .btn-copy:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">harii</div>
+    <div class="line"></div>
+    <div class="slogan">be classy with harii</div>
+    <div class="header-intro">"Avant de créer, on t'écoute."</div>
+    <div class="header-sub">Ce questionnaire est réservé à nos premières confidentes.<br>Tes réponses façonneront la Collection I — Septembre 2025.</div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:10%"></div></div>
+
+  <!-- Q1 -->
+  <div class="question-card active" id="q1">
+    <div class="question-num">01 · 10</div>
+    <div class="question-text">Comment tu portes ton voile au quotidien ?</div>
+    <div class="question-sub">Ton style habituel</div>
+    <div class="options">
+      <div class="option" onclick="sel(this,'q1')">Style simple et rapide — je veux que ça aille vite</div>
+      <div class="option" onclick="sel(this,'q1')">Style soigné — je prends le temps de bien le draper</div>
+      <div class="option" onclick="sel(this,'q1')">Ça dépend des jours et des occasions</div>
+      <div class="option" onclick="sel(this,'q1')">Je cherche encore mon style</div>
+    </div>
+    <div class="free-label">Tu veux ajouter quelque chose ?</div>
+    <textarea class="text-input" id="free1" rows="2" placeholder="Écris librement..."></textarea>
+    <div class="nav"><button class="btn-next" onclick="go(1,2)">Continuer</button></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card" id="q2">
+    <div class="question-num">02 · 10</div>
+    <div class="question-text">Ta plus grande frustration avec les voiles qu'on trouve à Abidjan ?</div>
+    <div class="multi-note">Plusieurs réponses possibles</div>
+    <div class="options">
+      <div class="option" onclick="mul(this,'q2')">Les matières sont trop chaudes et synthétiques</div>
+      <div class="option" onclick="mul(this,'q2')">Pas assez de coloris élégants et neutres</div>
+      <div class="option" onclick="mul(this,'q2')">Les prix ne reflètent pas la qualité</div>
+      <div class="option" onclick="mul(this,'q2')">Rien de vraiment premium ou exclusif</div>
+      <div class="option" onclick="mul(this,'q2')">Le packaging et l'expérience d'achat laissent à désirer</div>
+      <div class="option" onclick="mul(this,'q2')">Je commande souvent à l'étranger — l'offre locale est insuffisante</div>
+    </div>
+    <div class="free-label">Une frustration qu'on n'a pas mentionnée ?</div>
+    <textarea class="text-input" id="free2" rows="2" placeholder="Dis-nous tout..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(2,1)">←</button><button class="btn-next" onclick="go(2,3)">Continuer</button></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card" id="q3">
+    <div class="question-num">03 · 10</div>
+    <div class="question-text">Quelles matières tu préfères pour un voile quotidien ?</div>
+    <div class="multi-note">Plusieurs réponses possibles</div>
+    <div class="options">
+      <div class="option" onclick="mul(this,'q3')">🌿 Bamboo jersey — frais, doux, naturel</div>
+      <div class="option" onclick="mul(this,'q3')">💧 Jersey liquide — fluide, élégant, léger</div>
+      <div class="option" onclick="mul(this,'q3')">🌸 Mousseline — aérienne, légère</div>
+      <div class="option" onclick="mul(this,'q3')">✨ Soie ou satin — luxueux, brillant</div>
+      <div class="option" onclick="mul(this,'q3')">🍃 Coton premium — respirant, naturel</div>
+      <div class="option" onclick="mul(this,'q3')">🖤 Jersey opaque — pratique, couvrant</div>
+    </div>
+    <div class="free-label">Une matière qu'on n'a pas citée ?</div>
+    <textarea class="text-input" id="free3" rows="2" placeholder="Ex : lin, viscose..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(3,2)">←</button><button class="btn-next" onclick="go(3,4)">Continuer</button></div>
+  </div>
+
+  <!-- Q4 — PRIX VOILE -->
+  <div class="question-card" id="q4">
+    <div class="question-num">04 · 10</div>
+    <div class="question-text">Quel prix tu es prête à mettre pour un voile vraiment premium ?</div>
+    <div class="question-sub">Sois honnête — ça nous aide vraiment 🤍</div>
+    <div class="options">
+      <div class="option" onclick="sel(this,'q4')">5 000 – 10 000 FCFA</div>
+      <div class="option" onclick="sel(this,'q4')">10 000 – 15 000 FCFA</div>
+      <div class="option" onclick="sel(this,'q4')">15 000 – 25 000 FCFA</div>
+      <div class="option" onclick="sel(this,'q4')">25 000 – 40 000 FCFA</div>
+      <div class="option" onclick="sel(this,'q4')">40 000 – 70 000 FCFA si la qualité le justifie</div>
+    </div>
+    <div class="free-label">Un commentaire sur le prix ?</div>
+    <textarea class="text-input" id="free4" rows="2" placeholder="Ex : ça dépend de la matière, de l'occasion..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(4,3)">←</button><button class="btn-next" onclick="go(4,5)">Continuer</button></div>
+  </div>
+
+  <!-- Q5 — CONTENU BOX -->
+  <div class="question-card" id="q5">
+    <div class="question-num">05 · 10</div>
+    <div class="question-text">Qu'est-ce que tu voudrais trouver dans une box Harii ?</div>
+    <div class="question-sub">Imagine ton unboxing idéal</div>
+    <div class="multi-note">Plusieurs réponses possibles</div>
+    <div class="options">
+      <div class="option" onclick="mul(this,'q5')">🤍 Un voile premium (évidemment !)</div>
+      <div class="option" onclick="mul(this,'q5')">📌 Des épingles à voile élégantes assorties</div>
+      <div class="option" onclick="mul(this,'q5')">🧴 Un spray fixateur ou soin tissu</div>
+      <div class="option" onclick="mul(this,'q5')">💌 Une carte avec un message personnalisé</div>
+      <div class="option" onclick="mul(this,'q5')">🎀 Un bonnet sous-voile assorti</div>
+      <div class="option" onclick="mul(this,'q5')">✨ Un accessoire surprise (broche, clip...)</div>
+      <div class="option" onclick="mul(this,'q5')">🌸 Un sachet parfumé dans la boîte</div>
+    </div>
+    <div class="free-label">Un élément que tu rêverais de trouver ?</div>
+    <textarea class="text-input" id="free5" rows="2" placeholder="Ton idée de box idéale..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(5,4)">←</button><button class="btn-next" onclick="go(5,6)">Continuer</button></div>
+  </div>
+
+  <!-- Q6 — BUDGET BOX -->
+  <div class="question-card" id="q6">
+    <div class="question-num">06 · 10</div>
+    <div class="question-text">Combien tu serais prête à mettre dans une box Harii complète ?</div>
+    <div class="question-sub">Box = voile + accessoires + packaging soigné 🤍</div>
+    <div class="options">
+      <div class="option" onclick="sel(this,'q6')">Moins de 15 000 FCFA</div>
+      <div class="option" onclick="sel(this,'q6')">15 000 – 25 000 FCFA</div>
+      <div class="option" onclick="sel(this,'q6')">25 000 – 40 000 FCFA</div>
+      <div class="option" onclick="sel(this,'q6')">40 000 – 60 000 FCFA</div>
+      <div class="option" onclick="sel(this,'q6')">Plus de 60 000 FCFA pour une box cérémonie luxe</div>
+    </div>
+    <div class="free-label">Un commentaire sur le prix de la box ?</div>
+    <textarea class="text-input" id="free6" rows="2" placeholder="Ex : ça dépend du contenu, d'un cadeau..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(6,5)">←</button><button class="btn-next" onclick="go(6,7)">Continuer</button></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card" id="q7">
+    <div class="question-num">07 · 10</div>
+    <div class="question-text">Pour quelles occasions tu achètes un voile spécial ?</div>
+    <div class="multi-note">Plusieurs réponses possibles</div>
+    <div class="options">
+      <div class="option" onclick="mul(this,'q7')">💍 Mariage (invitée ou mariée)</div>
+      <div class="option" onclick="mul(this,'q7')">🌙 Aïd El-Fitr et Aïd El-Adha</div>
+      <div class="option" onclick="mul(this,'q7')">👔 Réunion professionnelle importante</div>
+      <div class="option" onclick="mul(this,'q7')">🎉 Anniversaire ou fête de famille</div>
+      <div class="option" onclick="mul(this,'q7')">✈️ Voyage ou sortie spéciale</div>
+      <div class="option" onclick="mul(this,'q7')">📸 Shooting photo ou contenu</div>
+    </div>
+    <div class="free-label">Une autre occasion ?</div>
+    <textarea class="text-input" id="free7" rows="2" placeholder="Ex : Ramadan, remise de diplôme..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(7,6)">←</button><button class="btn-next" onclick="go(7,8)">Continuer</button></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="question-card" id="q8">
+    <div class="question-num">08 · 10</div>
+    <div class="question-text">Quels coloris tu portes le plus souvent ?</div>
+    <div class="multi-note">Plusieurs réponses possibles</div>
+    <div class="options">
+      <div class="option" onclick="mul(this,'q8')">🤍 Tons neutres — beige, ivoire, crème</div>
+      <div class="option" onclick="mul(this,'q8')">🖤 Tons sombres — noir, gris anthracite</div>
+      <div class="option" onclick="mul(this,'q8')">🌸 Tons doux — rose poudré, champagne, nude</div>
+      <div class="option" onclick="mul(this,'q8')">🌿 Tons naturels — kaki, terracotta, camel</div>
+      <div class="option" onclick="mul(this,'q8')">💙 Tons froids — bleu, vert, lavande</div>
+      <div class="option" onclick="mul(this,'q8')">J'aime tout — ça dépend de l'humeur</div>
+    </div>
+    <div class="free-label">Un coloris que tu cherches partout sans le trouver ?</div>
+    <textarea class="text-input" id="free8" rows="2" placeholder="Ex : bordeaux, vert kaki foncé..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(8,7)">←</button><button class="btn-next" onclick="go(8,9)">Continuer</button></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="question-card" id="q9">
+    <div class="question-num">09 · 10</div>
+    <div class="question-text">À quel point l'expérience d'unboxing est importante pour toi ?</div>
+    <div class="question-sub">1 = pas important · 5 = très important</div>
+    <div class="scale" id="scale-q9">
+      <div class="scale-item" onclick="scl(this,'q9',1)">1</div>
+      <div class="scale-item" onclick="scl(this,'q9',2)">2</div>
+      <div class="scale-item" onclick="scl(this,'q9',3)">3</div>
+      <div class="scale-item" onclick="scl(this,'q9',4)">4</div>
+      <div class="scale-item" onclick="scl(this,'q9',5)">5</div>
+    </div>
+    <div class="scale-labels"><span>Pas important</span><span>Très important</span></div>
+    <div class="free-label">Pourquoi c'est important (ou pas) pour toi ?</div>
+    <textarea class="text-input" id="free9" rows="2" placeholder="Ex : j'adore filmer mes unboxings..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(9,8)">←</button><button class="btn-next" onclick="go(9,10)">Continuer</button></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="question-card" id="q10">
+    <div class="question-num">10 · 10</div>
+    <div class="question-text">Un mot, une phrase — qu'est-ce que tu veux ressentir en portant Harii ?</div>
+    <div class="question-sub">Dis-nous ce qui compte vraiment pour toi 🤍</div>
+    <textarea class="text-input" id="ans10" rows="4" placeholder="Écris librement..."></textarea>
+    <div class="nav"><button class="btn-prev" onclick="go(10,9)">←</button><button class="btn-next" onclick="done()">Envoyer 🤍</button></div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="results-logo">harii</div>
+    <div class="line"></div>
+    <div class="results-title">"Merci d'avoir pris le temps."</div>
+    <div class="results-text">Tes réponses sont précieuses.<br>Tu fais partie des premières à façonner Harii.<br>La Collection I arrive en septembre 2025 — pensée pour toi. 🤍</div>
+    <div class="summary" id="summary"></div>
+    <button class="btn-copy" onclick="copy()">Copier mes réponses</button>
+  </div>
+
+</div>
+<script>
+const ans = {};
+const frees = {};
+const qs = [
+  'Style de port quotidien',
+  'Frustrations actuelles',
+  'Matières préférées',
+  'Budget voile premium',
+  'Contenu box idéale',
+  'Budget box complète',
+  'Occasions spéciales',
+  'Coloris préférés',
+  'Importance unboxing',
+  'Ce qu\'elle veut ressentir'
+];
+const total = 10;
+
+function go(from, to) {
+  if(from <= 9) {
+    const fid = document.getElementById('free'+from);
+    if(fid) frees['free'+from] = fid.value;
+  }
+  document.getElementById('q'+from).classList.remove('active');
+  if(to <= total) {
+    document.getElementById('q'+to).classList.add('active');
+  }
+  document.getElementById('progress').style.width = (to/total*100)+'%';
+  window.scrollTo(0,0);
+}
+
+function sel(el, q) {
+  el.closest('.options').querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  ans[q] = el.textContent.trim();
+}
+
+function mul(el, q) {
+  el.classList.toggle('selected');
+  ans[q] = Array.from(el.closest('.options').querySelectorAll('.option.selected')).map(o=>o.textContent.trim());
+}
+
+function scl(el, q, v) {
+  el.closest('.scale').querySelectorAll('.scale-item').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  ans[q] = v+'/5';
+}
+
+function done() {
+  ans['q10'] = document.getElementById('ans10').value || '—';
+  for(let i=1;i<=9;i++){
+    const fid = document.getElementById('free'+i);
+    if(fid) frees['free'+i] = fid.value;
+  }
+  document.getElementById('q10').classList.remove('active');
+
+  let html = '<div class="summary-title">Récapitulatif de tes réponses</div>';
+  for(let i=1;i<=total;i++){
+    const a = ans['q'+i];
+    const t = Array.isArray(a) ? a.join(' · ') : (a||'—');
+    const f = frees['free'+i];
+    html += `<div class="summary-item">
+      <div class="summary-q">${qs[i-1]}</div>
+      <div class="summary-a">${t}${f ? '<br><em style="color:#A5ABAB;font-size:11px">→ '+f+'</em>' : ''}</div>
+    </div>`;
+  }
+
+  document.getElementById('summary').innerHTML = html;
+  document.getElementById('results').classList.add('active');
+  document.getElementById('progress').style.width = '100%';
+  window.scrollTo(0,0);
+}
+
+function copy() {
+  let txt = 'QUESTIONNAIRE HARII — RÉPONSES\n\n';
+  for(let i=1;i<=total;i++){
+    const a = ans['q'+i];
+    const t = Array.isArray(a) ? a.join(' · ') : (a||'—');
+    const f = frees['free'+i];
+    txt += qs[i-1]+' :\n'+t+(f ? '\n→ '+f : '')+'\n\n';
+  }
+  navigator.clipboard.writeText(txt).then(()=>{
+    document.querySelector('.btn-copy').textContent='Copié ✓';
+    setTimeout(()=>document.querySelector('.btn-copy').textContent='Copier mes réponses',2000);
+  });
+}
+</script>
+</body>
+</html>
