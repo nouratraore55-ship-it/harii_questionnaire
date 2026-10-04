@@ -1,340 +1,1260 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Questionnaire Harii</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #F4F2E9; font-family: 'Montserrat', sans-serif; font-weight: 300; color: #3a3330; min-height: 100vh; padding: 40px 20px; }
-  .container { max-width: 560px; margin: 0 auto; }
-  .header { text-align: center; margin-bottom: 48px; }
-  .logo { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; letter-spacing: 0.08em; color: #3a3330; margin-bottom: 8px; }
-  .line { width: 40px; height: 0.5px; background: #A5ABAB; margin: 12px auto; }
-  .slogan { font-size: 10px; letter-spacing: 0.22em; color: #A5ABAB; text-transform: uppercase; }
-  .header-intro { margin-top: 28px; font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; color: #3a3330; line-height: 1.7; }
-  .header-sub { margin-top: 10px; font-size: 12px; color: #A5ABAB; line-height: 1.7; letter-spacing: 0.03em; }
-  .progress-bar { height: 1.5px; background: #CCC3C0; border-radius: 2px; margin-bottom: 40px; overflow: hidden; }
-  .progress-fill { height: 100%; background: #F3D5CF; border-radius: 2px; transition: width 0.4s ease; }
-  .question-card { display: none; animation: fadeIn 0.35s ease; }
-  .question-card.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  .question-num { font-size: 10px; letter-spacing: 0.18em; color: #A5ABAB; text-transform: uppercase; margin-bottom: 10px; }
-  .question-text { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: #3a3330; line-height: 1.5; margin-bottom: 6px; }
-  .question-sub { font-size: 11px; color: #A5ABAB; margin-bottom: 6px; letter-spacing: 0.02em; }
-  .multi-note { font-size: 10px; color: #CCC3C0; margin-bottom: 16px; letter-spacing: 0.04em; }
-  .options { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
-  .option { padding: 13px 16px; border: 0.5px solid #CCC3C0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #3a3330; background: #F4F2E9; transition: all 0.2s ease; letter-spacing: 0.02em; user-select: none; }
-  .option:hover { border-color: #F3D5CF; background: #fdf5f2; }
-  .option.selected { border-color: #F3D5CF; background: #F3D5CF; }
-  .free-label { font-size: 10px; color: #A5ABAB; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; margin-top: 4px; }
-  .text-input { width: 100%; padding: 13px 16px; border: 0.5px solid #CCC3C0; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: 13px; color: #3a3330; background: #F4F2E9; resize: none; outline: none; margin-bottom: 28px; transition: border-color 0.2s; }
-  .text-input:focus { border-color: #F3D5CF; }
-  .text-input::placeholder { color: #CCC3C0; }
-  .scale { display: flex; gap: 8px; margin-bottom: 8px; }
-  .scale-item { flex: 1; aspect-ratio: 1; border: 0.5px solid #CCC3C0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; background: #F4F2E9; transition: all 0.2s; }
-  .scale-item:hover { border-color: #F3D5CF; }
-  .scale-item.selected { background: #F3D5CF; border-color: #F3D5CF; }
-  .scale-labels { display: flex; justify-content: space-between; font-size: 10px; color: #A5ABAB; margin-bottom: 20px; letter-spacing: 0.04em; }
-  .nav { display: flex; gap: 10px; align-items: center; }
-  .btn-next { flex: 1; padding: 14px; background: #3a3330; color: #F4F2E9; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; }
-  .btn-next:hover { opacity: 0.82; }
-  .btn-prev { padding: 14px 16px; background: transparent; color: #A5ABAB; border: 0.5px solid #CCC3C0; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-  .btn-prev:hover { border-color: #3a3330; color: #3a3330; }
-  .results { display: none; text-align: center; padding: 40px 0; }
-  .results.active { display: block; }
-  .results-logo { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: #3a3330; margin-bottom: 16px; }
-  .results-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-style: italic; color: #3a3330; margin-bottom: 12px; }
-  .results-text { font-size: 12px; color: #A5ABAB; line-height: 1.9; margin-bottom: 32px; }
-  .summary { background: white; border-radius: 12px; padding: 24px; text-align: left; margin-bottom: 20px; }
-  .summary-title { font-size: 10px; letter-spacing: 0.14em; color: #A5ABAB; text-transform: uppercase; margin-bottom: 16px; }
-  .summary-item { padding: 9px 0; border-bottom: 0.5px solid #F4F2E9; font-size: 12px; }
-  .summary-item:last-child { border-bottom: none; }
-  .summary-q { color: #A5ABAB; margin-bottom: 3px; font-size: 10px; letter-spacing: 0.04em; }
-  .summary-a { color: #3a3330; line-height: 1.5; }
-  .btn-copy { width: 100%; padding: 14px; background: #F3D5CF; color: #3a3330; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 400; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; }
-  .btn-copy:hover { opacity: 0.85; }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="assets/logo-noir.png">
 </head>
 <body>
-<div class="container">
+<title>Harii</title>
+<meta name="description" content="Harii, maison de voiles de luxe à Abidjan. Be Classy with Harii.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap">
+<style>
+/* Layout: boutique éditoriale mobile-first. Barre d'annonce, hero plein cadre, rails produits défilants, bandeaux éditoriaux. Fond blanc, palette Harii en accents secondaires, un seul thème clair par choix de marque. */
+:root {
+  /* Couleurs (Brand Guide Harii 2026) */
+  --paper: #FFFFFF;       /* fond principal du site */
+  --beige: #F4F2E9;       /* beige Harii : visuels, accents */
+  --champagne: #F3D5CF;   /* accent chaleureux */
+  --pale-silver: #CCC3C0; /* neutre, bordures */
+  --metal-silver: #A5ABAB;/* texte secondaire, détails */
+  --ink: #3a3330;         /* logo version sombre, texte */
+  --ink-soft: #6b625e;    /* texte courant atténué, dérivé de l'encre */
 
-  <div class="header">
-    <div class="logo">harii</div>
-    <div class="line"></div>
-    <div class="slogan">be classy with harii</div>
-    <div class="header-intro">"Avant de créer, on t'écoute."</div>
-    <div class="header-sub">Ce questionnaire est réservé à nos premières confidentes.<br>Tes réponses façonneront la Collection I — Septembre 2025.</div>
-  </div>
+  /* Typographie */
+  --display: "Cormorant Garamond", "Cormorant", Garamond, "Times New Roman", serif;
+  --body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
 
-  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:10%"></div></div>
+  --gutter: clamp(16px, 5vw, 56px);
+  --wa: 0px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 300 15px/1.75 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+h1, h2, h3 { font-family: var(--display); font-weight: 300; text-wrap: balance; margin: 0; line-height: 1.1; }
+p { margin: 0; }
+:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
 
-  <!-- Q1 -->
-  <div class="question-card active" id="q1">
-    <div class="question-num">01 · 10</div>
-    <div class="question-text">Comment tu portes ton voile au quotidien ?</div>
-    <div class="question-sub">Ton style habituel</div>
-    <div class="options">
-      <div class="option" onclick="sel(this,'q1')">Style simple et rapide — je veux que ça aille vite</div>
-      <div class="option" onclick="sel(this,'q1')">Style soigné — je prends le temps de bien le draper</div>
-      <div class="option" onclick="sel(this,'q1')">Ça dépend des jours et des occasions</div>
-      <div class="option" onclick="sel(this,'q1')">Je cherche encore mon style</div>
+.eyebrow {
+  font: 400 10.5px/1.4 var(--body);
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--metal-silver);
+}
+.wrap { padding-inline: var(--gutter); max-width: 1240px; margin-inline: auto; }
+
+/* Barre d'annonce */
+.announce {
+  background: var(--ink);
+  color: var(--beige);
+  text-align: center;
+  font: 400 10.5px/1 var(--body);
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  padding: 11px var(--gutter);
+}
+
+@media (max-width: 600px) { .announce .wide { display: none; } }
+
+/* En-tête */
+header.site {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid color-mix(in srgb, var(--pale-silver) 60%, transparent);
+}
+.bar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 64px;
+}
+.brand {
+  display: flex; align-items: center; gap: 2px;
+  text-decoration: none;
+  justify-self: center;
+}
+.brand img { width: 44px; height: 44px; mix-blend-mode: multiply; transform: scale(1.9); }
+.brand span {
+  font: 400 21px/1 var(--display);
+  letter-spacing: .38em;
+  margin-left: 8px;
+  text-transform: uppercase;
+}
+.menu-btn {
+  justify-self: start;
+  background: none; border: 0; padding: 8px 0; cursor: pointer;
+  display: flex; flex-direction: column; gap: 6px; width: 26px;
+}
+.menu-btn i { display: block; height: 1px; background: var(--ink); transition: transform .3s; }
+.menu-btn[aria-expanded="true"] i:first-child { transform: translateY(3.5px) rotate(45deg); }
+.menu-btn[aria-expanded="true"] i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+.head-icons { justify-self: end; display: flex; align-items: center; gap: 18px; }
+.head-icons a { position: relative; display: grid; place-items: center; width: 28px; height: 28px; text-decoration: none; }
+.head-icons svg { width: 21px; height: 21px; fill: none; stroke: var(--ink); stroke-width: 1.2; }
+.head-icons .hide-sm { display: none; }
+@media (min-width: 1100px) { .head-icons .hide-sm { display: grid; } }
+#bag-count {
+  position: absolute; top: -3px; right: -6px;
+  min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
+  background: var(--ink); color: var(--paper);
+  font: 500 9px/16px var(--body); text-align: center;
+}
+/* Accueil : l'en-tête se pose sur le hero, puis devient blanc au défilement */
+body.on-home header.site:not(.solid) { background: transparent; border-bottom-color: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+body.on-home .hero { margin-top: -64px; }
+@media (min-width: 1100px) { body.on-home .hero { margin-top: -76px; } }
+header.site { transition: background .3s, border-color .3s; }
+nav.main { display: none; }
+nav.main a {
+  text-decoration: none;
+  font: 400 11px/1 var(--body);
+  letter-spacing: .24em; text-transform: uppercase;
+  padding-block: 6px;
+  border-bottom: 1px solid transparent;
+}
+nav.main a[aria-current="page"] { border-bottom-color: var(--ink); }
+.drawer {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 8px var(--gutter) 28px;
+  border-top: 1px solid color-mix(in srgb, var(--pale-silver) 60%, transparent);
+}
+.drawer a {
+  font: 300 30px/1.5 var(--display);
+  text-decoration: none;
+}
+.drawer a[aria-current="page"] { font-style: italic; }
+.drawer .eyebrow { margin-top: 16px; }
+
+@media (min-width: 1100px) {
+  .bar { grid-template-columns: 1fr auto 1fr; column-gap: 64px; height: 76px; }
+  .brand { justify-self: start; order: -1; }
+  .menu-btn, .drawer { display: none !important; }
+  nav.main { display: flex; gap: 32px; justify-content: center; }
+}
+
+/* Correction optique : l'espacement des lettres ajoute un blanc après la dernière lettre */
+.brand span { margin-right: -.38em; }
+nav.main a { margin-right: -.24em; }
+.announce { text-indent: .24em; }
+.eyebrow { text-indent: .32em; }
+.section-head .eyebrow, .hero .eyebrow, .band-copy .eyebrow, .manifesto .eyebrow, .promises .eyebrow, .wa-band .eyebrow, .col-intro .eyebrow { display: block; }
+.shop .section-head h2 { text-indent: .26em; }
+.hero h1 em { text-indent: .32em; }
+.btn { padding-inline: 30px calc(30px - .24em); }
+.btn.pill { padding-inline: 28px calc(28px - .24em); }
+.head-icons { min-width: 0; }
+
+/* Visuel provisoire : fond beige, monogramme champagne centré */
+.ph {
+  position: relative;
+  background: var(--beige);
+  display: grid; place-items: center;
+  overflow: hidden;
+  max-width: 100%;
+}
+.ph::after {
+  content: "";
+  position: absolute; inset: 10px;
+  border: 1px solid color-mix(in srgb, var(--pale-silver) 55%, transparent);
+  pointer-events: none;
+}
+.ph img { width: 72px; max-width: 40%; mix-blend-mode: multiply; transform: scale(2.6); }
+.ph .ph-note {
+  position: absolute; bottom: 20px; left: 0; right: 0;
+  text-align: center;
+  font: 400 9.5px/1 var(--body); letter-spacing: .3em; text-transform: uppercase;
+  color: var(--metal-silver);
+}
+
+/* Motif losanges, clin d'œil aux géométries akan : séparateur discret */
+.motif {
+  height: 14px;
+  background:
+    linear-gradient(135deg, transparent 46%, var(--pale-silver) 46% 54%, transparent 54%) 0 0 / 14px 14px,
+    linear-gradient(45deg, transparent 46%, var(--pale-silver) 46% 54%, transparent 54%) 0 0 / 14px 14px;
+  opacity: .8;
+}
+.motif.short { width: 98px; margin-inline: auto; }
+
+/* Boutons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 50px;
+  padding: 0 30px;
+  font: 400 11px/1 var(--body);
+  letter-spacing: .24em; text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--ink);
+  background: var(--ink); color: var(--beige);
+  cursor: pointer;
+  transition: background .25s, color .25s;
+}
+.btn:hover { background: transparent; color: var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover { background: var(--ink); color: var(--beige); }
+.btn.light { background: var(--beige); color: var(--ink); border-color: var(--beige); }
+.btn.light:hover { background: transparent; color: var(--ink); border-color: var(--ink); }
+.btn svg { width: 16px; height: 16px; fill: currentColor; flex: none; }
+
+/* Pages */
+main > section[data-page] { animation: fade .5s ease both; }
+@keyframes fade { from { opacity: .4; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { main > section[data-page] { animation: none; } html { scroll-behavior: auto; } }
+
+/* Hero */
+.hero {
+  position: relative;
+  background: var(--champagne);
+  min-height: min(78svh, 720px);
+  display: grid; place-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+.hero .ph { position: absolute; inset: 0; background: var(--champagne); }
+.hero .ph::after, .band .ph::after { display: none; }
+.hero .ph::after { inset: 14px; border-color: color-mix(in srgb, var(--beige) 70%, transparent); }
+.hero .ph img, .band .ph img { position: absolute; left: 50%; bottom: 28px; width: 56px; max-width: none; transform: translateX(-50%) scale(2.6); opacity: .9; mix-blend-mode: multiply; filter: saturate(1.6) brightness(.92); }
+.hero-copy {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  padding: 72px var(--gutter);
+}
+.hero h1 {
+  font-size: clamp(54px, 15vw, 128px);
+  font-style: italic;
+  font-weight: 300;
+  line-height: .95;
+  letter-spacing: -.01em;
+}
+.hero h1 em { display: block; font-style: normal; font-size: .42em; letter-spacing: .32em; text-transform: uppercase; margin-bottom: .3em; }
+.hero .eyebrow { color: var(--ink); }
+.hero p.lead { max-width: 30ch; color: var(--ink-soft); }
+
+/* Sections */
+.block { padding-block: clamp(64px, 12vw, 128px); }
+.section-head { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; margin-bottom: clamp(32px, 6vw, 56px); }
+.section-head h2 { font-size: clamp(34px, 7vw, 54px); }
+.section-head p { max-width: 52ch; color: var(--ink-soft); }
+
+.manifesto { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 26px; }
+.manifesto blockquote {
+  margin: 0;
+  font: italic 300 clamp(26px, 5.4vw, 44px)/1.3 var(--display);
+  max-width: 24ch;
+  text-wrap: balance;
+}
+.manifesto p { max-width: 58ch; color: var(--ink-soft); }
+
+/* Rail produits */
+.rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 74%;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-inline: var(--gutter);
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+  padding-bottom: 6px;
+}
+.rail::-webkit-scrollbar { display: none; }
+@media (min-width: 640px) { .rail { grid-auto-columns: 42%; } }
+@media (min-width: 1000px) { .rail { grid-auto-columns: calc((100% - 2 * var(--gutter) - 3 * 12px) / 4); gap: 12px; justify-content: center; } }
+.rail > * { scroll-snap-align: start; }
+.rail-track {
+  margin: 28px var(--gutter) 0;
+  height: 1px; background: var(--pale-silver);
+  position: relative;
+  width: min(420px, calc(100% - 2 * var(--gutter)));
+  margin-inline: auto;
+}
+.rail-track i { position: absolute; left: 0; top: -0.5px; height: 2px; background: var(--ink); width: 30%; transition: transform .15s linear; }
+
+.card { display: flex; flex-direction: column; gap: 14px; text-decoration: none; min-width: 0; }
+.card .ph { aspect-ratio: 9 / 10; width: 100%; }
+.card .ph img { width: 48px; }
+.card .tag {
+  position: absolute; top: 12px; left: 12px; z-index: 1;
+  font: 600 8.5px/1 var(--body); letter-spacing: .14em; text-transform: uppercase;
+  background: var(--paper); color: var(--ink);
+  padding: 5px 7px;
+}
+.card .meta { display: flex; flex-direction: column; gap: 5px; text-align: center; }
+.card h3 { font: 500 12.5px/1.35 var(--body); letter-spacing: .02em; }
+.card h3 small { display: block; font: 300 11.5px/1.4 var(--body); color: var(--ink-soft); margin-top: 2px; }
+.card .price { font-size: 12px; letter-spacing: .04em; color: var(--ink-soft); }
+.price { font: 400 12.5px/1 var(--body); letter-spacing: .14em; font-variant-numeric: tabular-nums; color: var(--ink); }
+
+/* Bandeau éditorial */
+.editorial {
+  display: grid;
+  background: var(--ink);
+  color: var(--beige);
+}
+.editorial .ph { aspect-ratio: 4 / 5; background: var(--champagne); }
+.editorial .ph::after { border-color: color-mix(in srgb, var(--beige) 60%, transparent); }
+.editorial .copy {
+  display: flex; flex-direction: column; justify-content: center; gap: 22px;
+  padding: clamp(48px, 10vw, 96px) var(--gutter);
+}
+.editorial .copy h2 { font-size: clamp(36px, 7vw, 60px); }
+.editorial .copy h2 i { font-weight: 300; }
+.editorial .copy p { color: color-mix(in srgb, var(--beige) 78%, var(--ink)); max-width: 46ch; }
+.editorial .eyebrow { color: var(--metal-silver); }
+@media (min-width: 900px) {
+  .editorial { grid-template-columns: 1fr 1fr; }
+  .editorial .ph { aspect-ratio: auto; min-height: 640px; }
+}
+
+
+/* Bandeau plein cadre, titre centré sur l'image (structure inspirée de la référence) */
+.band { position: relative; min-height: min(86svh, 760px); display: grid; place-items: center; text-align: center; overflow: hidden; background: var(--champagne); }
+.band .ph { position: absolute; inset: 0; background: var(--champagne); }
+.band .ph::after { inset: 14px; border-color: color-mix(in srgb, var(--beige) 70%, transparent); }
+
+.band-copy { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 64px var(--gutter); }
+.band-copy h2 { font-size: clamp(52px, 13vw, 112px); font-weight: 300; line-height: .95; }
+.band-copy p { max-width: 34ch; color: var(--ink-soft); }
+.band-copy .eyebrow { color: var(--ink); }
+.btn.pill { border-radius: 999px; background: var(--paper); color: var(--ink); border-color: var(--paper); min-height: 46px; padding: 0 28px; }
+.btn.pill:hover { background: var(--ink); color: var(--beige); border-color: var(--ink); }
+.shop { padding-block: clamp(56px, 10vw, 96px); }
+.shop .section-head { margin-bottom: 28px; }
+.shop .section-head h2 { font: 400 clamp(15px, 3.6vw, 18px)/1.2 var(--body); letter-spacing: .26em; text-transform: uppercase; }
+.rail-wrap { position: relative; }
+.rail-arrow {
+  position: absolute; top: 38%; z-index: 2;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--pale-silver); background: var(--paper); color: var(--ink);
+  font: 300 22px/1 var(--display); cursor: pointer;
+  display: none; place-items: center;
+}
+.rail-arrow.prev { left: calc(var(--gutter) - 19px); }
+.rail-arrow.next { right: calc(var(--gutter) - 19px); }
+.rail-arrow:disabled { opacity: 0; pointer-events: none; }
+@media (min-width: 760px) { .rail-arrow { display: grid; } }
+
+.band.silver, .band.silver .ph { background: var(--pale-silver); }
+.band.silver .band-copy p { color: var(--ink); }
+
+
+/* Photos : déposez les fichiers dans assets/photos/ avec les noms indiqués dans data-photo.
+   Tant qu'une photo manque, le visuel provisoire (beige + monogramme) reste affiché. */
+[data-photo] > img.photo { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; mix-blend-mode: normal; opacity: 1; filter: none; z-index: 0; }
+.ph.has-photo > img:not(.photo), .ph.has-photo .ph-note, .ph.has-photo::after { display: none; }
+.hero.has-photo > .ph, .band.has-photo > .ph { display: none; }
+.hero.has-photo::before, .band.has-photo::before {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 30%, transparent), color-mix(in srgb, var(--ink) 10%, transparent) 40%, color-mix(in srgb, var(--ink) 35%, transparent));
+}
+.hero-copy, .band-copy { z-index: 2; }
+.hero.has-photo .hero-copy, .band.has-photo .band-copy,
+.hero.has-photo .eyebrow, .band.has-photo .eyebrow,
+.hero.has-photo p.lead, .band.has-photo .band-copy p { color: var(--paper); }
+/* En-tête blanc par-dessus une photo */
+body.on-home.hero-photo header.site:not(.solid) .brand span,
+body.on-home.hero-photo header.site:not(.solid) nav.main a { color: var(--paper); }
+body.on-home.hero-photo header.site:not(.solid) nav.main a[aria-current="page"] { border-bottom-color: var(--paper); }
+body.on-home.hero-photo header.site:not(.solid) .head-icons svg { stroke: var(--paper); }
+body.on-home.hero-photo header.site:not(.solid) .menu-btn i { background: var(--paper); }
+body.on-home.hero-photo header.site:not(.solid) .brand img { filter: invert(1); mix-blend-mode: screen; }
+
+
+/* Mode édition (propriétaire seulement) */
+.edit-toggle {
+  position: fixed; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 31;
+  height: 44px; padding: 0 20px; border-radius: 999px;
+  background: var(--champagne); color: var(--ink); border: 1px solid var(--ink);
+  font: 500 10.5px/1 var(--body); letter-spacing: .2em; text-transform: uppercase; cursor: pointer;
+}
+body.editing .edit-toggle { background: var(--ink); color: var(--paper); }
+.edit-chip { display: none; }
+body.editing [data-photo] > .edit-chip {
+  display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+  position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); z-index: 5; padding: 0 10px;
+}
+body.editing .hero > .edit-chip, body.editing .band > .edit-chip { top: auto; bottom: 84px; transform: none; }
+.edit-chip button {
+  height: 36px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--ink);
+  font: 500 10px/1 var(--body); letter-spacing: .14em; text-transform: uppercase;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+.edit-chip .rm { background: var(--ink); color: var(--paper); }
+body.editing [data-photo] { outline: 1px dashed var(--ink); outline-offset: -6px; }
+[data-photo].uploading { opacity: .55; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 40;
+  background: var(--ink); color: var(--paper); padding: 12px 18px; font-size: 13px; max-width: calc(100% - 32px); text-align: center;
+}
+
+
+/* Inspiration éditoriale : titres géants, bandeau défilant, blocs de couleur */
+.hero { align-items: end; place-items: stretch; }
+.hero-copy { width: 100%; min-width: 0; overflow: hidden; padding: 120px 0 0; gap: 0; justify-content: space-between; min-height: inherit; }
+.hero-top { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-inline: var(--gutter); margin-block: auto; }
+.hero h1.giant {
+  font-family: var(--display); font-weight: 500; line-height: .82; font-size: clamp(52px, 11vw, 200px);
+  text-transform: uppercase; letter-spacing: -.02em; font-style: normal;
+  color: var(--ink); margin: 32px auto -0.1em; white-space: nowrap; text-wrap: nowrap; width: max-content; max-width: none;
+}
+.script { font-family: var(--display); font-style: italic; font-weight: 300; text-transform: none; letter-spacing: 0; font-size: .55em; vertical-align: .18em; }
+.hero.has-photo .giant { color: var(--champagne); }
+.hero > .ph img { top: 128px; bottom: auto; }
+@media (max-width: 600px) { .hero h1.giant { white-space: normal; text-wrap: balance; width: auto; font-size: 16vw; margin-top: 40px; } }
+
+.marquee { background: var(--ink); color: var(--champagne); overflow: hidden; padding-block: 9px; }
+.marquee-track { display: flex; gap: 22px; width: max-content; animation: marquee 34s linear infinite; font: 500 clamp(15px, 2.4vw, 20px)/1 var(--display); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+.marquee-track i { font-weight: 300; text-transform: none; }
+.marquee-track b { font-weight: 300; color: var(--metal-silver); }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+
+.offers { background: var(--ink); color: var(--paper); padding-block: clamp(64px, 11vw, 112px); }
+.offers-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 44px; }
+.offers-head h2 { font: 500 clamp(42px, 9vw, 80px)/.9 var(--display); text-transform: uppercase; color: var(--champagne); }
+.offers-head p { color: color-mix(in srgb, var(--paper) 75%, var(--ink)); max-width: 40ch; }
+.offer-grid { display: grid; gap: 22px; max-width: 860px; margin-inline: auto; }
+@media (min-width: 720px) { .offer-grid { grid-template-columns: 1fr 1fr; } }
+.offer { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; padding: 44px 28px 36px; }
+.offer.light { background: var(--champagne); color: var(--ink); }
+.offer.dark { background: var(--beige); color: var(--ink); outline: 1px solid var(--champagne); outline-offset: -10px; }
+.offer h3 { font: 500 30px/1 var(--display); text-transform: uppercase; }
+.offer-price { font: 400 46px/1 var(--display); font-variant-numeric: tabular-nums; }
+.offer-price small { font: 400 12px/1 var(--body); letter-spacing: .2em; }
+.offer p { font-size: 14px; color: var(--ink-soft); max-width: 30ch; }
+.offer .btn.light { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.badge {
+  position: absolute; top: -26px; right: -8px; width: 76px; height: 76px; border-radius: 50%;
+  display: grid; place-items: center; text-align: center;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--ink);
+  font: 600 9px/1.3 var(--body); letter-spacing: .14em; text-transform: uppercase; transform: rotate(12deg);
+}
+
+.quest { background: var(--champagne); padding-block: clamp(72px, 12vw, 128px); }
+.quest-inner { position: relative; display: grid; gap: 28px; justify-items: center; text-align: center; max-width: 980px; }
+.quest-title { font: 500 clamp(30px, 6vw, 54px)/1.05 var(--display); text-transform: uppercase; max-width: 18ch; }
+.quest-title .script { font-size: .8em; vertical-align: 0; }
+.note { position: relative; background: var(--paper); padding: 22px 24px 20px; text-align: left; width: min(270px, 100%); box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 12%, transparent); }
+.note h4 { margin: 0 0 8px; font: 600 10.5px/1 var(--body); letter-spacing: .2em; text-transform: uppercase; }
+.note ul { margin: 0; padding-left: 16px; font-size: 13px; color: var(--ink-soft); display: grid; gap: 4px; }
+.note-a { transform: rotate(-3deg); justify-self: start; }
+.note-b { transform: rotate(2.5deg); justify-self: end; background: var(--ink); color: var(--paper); }
+.note-b ul { color: color-mix(in srgb, var(--paper) 80%, var(--ink)); }
+.sticker { position: absolute; top: -22px; right: -14px; width: 46px; height: 46px; fill: var(--paper); stroke: var(--ink); stroke-width: 1.4; }
+.note-b .sticker { fill: var(--champagne); }
+@media (min-width: 900px) {
+  .quest-inner { grid-template-columns: 1fr 1.6fr 1fr; align-items: center; }
+  .note-a { justify-self: start; align-self: start; }
+  .note-b { justify-self: end; align-self: end; }
+  .quest-inner > .btn { grid-column: 1 / -1; }
+}
+
+.panels { display: grid; gap: 64px; padding-top: 18px; }
+.panel { position: relative; }
+.panel-tab {
+  position: absolute; top: -30px; left: clamp(16px, 6vw, 56px); height: 30px; padding: 0 22px;
+  display: grid; place-items: center;
+  font: 600 10px/1 var(--body); letter-spacing: .2em; text-transform: uppercase;
+}
+.panel-body { display: grid; gap: 28px; padding: clamp(18px, 4vw, 40px); }
+.panel .ph { aspect-ratio: 1; }
+.panel-copy { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; justify-content: center; }
+.panel-copy h3 { font: 500 clamp(32px, 6vw, 48px)/1 var(--display); text-transform: uppercase; }
+.panel-copy p { color: inherit; opacity: .85; max-width: 42ch; font-size: 14px; }
+.panel-copy .price { font-size: 13px; letter-spacing: .14em; color: inherit; }
+.tone-0 .panel-body, .tone-0 .panel-tab { background: var(--ink); color: var(--paper); }
+.tone-0 .eyebrow { color: var(--champagne); }
+.tone-0 .btn { background: var(--champagne); color: var(--ink); border-color: var(--champagne); }
+.tone-1 .panel-body, .tone-1 .panel-tab { background: var(--champagne); color: var(--ink); }
+.tone-1 .eyebrow { color: var(--ink-soft); }
+.tone-2 .panel-body, .tone-2 .panel-tab { background: var(--beige); color: var(--ink); }
+.panel .tag { position: absolute; top: 14px; left: 14px; z-index: 1; font: 600 8.5px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; background: var(--paper); color: var(--ink); padding: 5px 7px; }
+.panel .ph img { width: 56px; }
+@media (min-width: 820px) { .panel-body { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 48px; } .panel:nth-child(even) .panel-body .ph { order: 2; } .panel:nth-child(even) .panel-tab { left: auto; right: clamp(16px, 6vw, 56px); } }
+
+/* Avantages */
+.promises { display: grid; gap: 34px; text-align: center; }
+.promises > div { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.promises h3 { font-size: 24px; font-weight: 400; }
+.promises p { color: var(--ink-soft); max-width: 32ch; font-size: 14px; }
+@media (min-width: 760px) { .promises { grid-template-columns: repeat(3, 1fr); } }
+
+/* Appel WhatsApp */
+.wa-band {
+  background: var(--champagne);
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+}
+.wa-band h2 { font-size: clamp(36px, 8vw, 64px); font-style: italic; }
+.wa-band p { max-width: 44ch; color: var(--ink-soft); }
+
+/* Collection : grille */
+.col-intro { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; padding-block: clamp(48px, 9vw, 96px) clamp(32px, 6vw, 56px); }
+.col-intro h1 { font-size: clamp(48px, 11vw, 92px); }
+.col-intro h1 i { font-weight: 300; }
+.col-intro p { max-width: 48ch; color: var(--ink-soft); }
+.group-title { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--pale-silver); padding-bottom: 14px; margin-bottom: 28px; }
+.group-title h2 { font-size: clamp(28px, 5vw, 38px); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 14px; }
+@media (min-width: 900px) { .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px 22px; } .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 22px; max-width: 820px; } }
+.grid .card:only-child, .grid.three .card:last-child:nth-child(odd) { }
+@media (max-width: 899px) { .grid.three .card:last-child { grid-column: 1 / -1; } .grid.three .card:last-child .ph { aspect-ratio: 16 / 13; } }
+.card .desc { font-size: 13px; color: var(--ink-soft); max-width: 34ch; margin-inline: auto; }
+.card .add {
+  margin-top: 6px;
+  align-self: center;
+  background: none; border: 0; cursor: pointer;
+  font: 400 10.5px/1 var(--body); letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 8px 0 5px;
+}
+@media (max-width: 520px) {
+  .grid .card .desc { display: none; }
+  .grid.three .card:last-child .desc { display: block; }
+}
+.care { display: grid; gap: 22px; padding-block: clamp(56px, 10vw, 104px); }
+.care dl { margin: 0; display: grid; gap: 0; }
+.care dl > div { display: grid; grid-template-columns: minmax(0, 9em) minmax(0, 1fr); gap: 16px; padding-block: 16px; border-top: 1px solid var(--pale-silver); }
+.care dt { font: 400 10.5px/1.8 var(--body); letter-spacing: .24em; text-transform: uppercase; color: var(--metal-silver); }
+.care dd { margin: 0; font-size: 14px; color: var(--ink-soft); }
+@media (min-width: 900px) { .care { grid-template-columns: 1fr 1.4fr; gap: 64px; } }
+
+/* Notre histoire */
+.story-hero { display: grid; }
+.story-hero .ph { aspect-ratio: 4 / 5; }
+.story-hero .copy { display: flex; flex-direction: column; gap: 18px; justify-content: center; padding: clamp(40px, 8vw, 96px) var(--gutter); }
+.story-hero h1 { font-size: clamp(48px, 11vw, 92px); }
+.story-hero h1 i { font-weight: 300; }
+@media (min-width: 900px) { .story-hero { grid-template-columns: 1fr 1fr; } .story-hero .ph { aspect-ratio: auto; min-height: 680px; } }
+.chapter { display: grid; gap: 18px; max-width: 680px; margin-inline: auto; }
+.chapter h2 { font-size: clamp(32px, 6vw, 46px); }
+.chapter h2 i { font-weight: 300; }
+.chapter p { color: var(--ink-soft); }
+.chapter p.first::first-letter { font: 400 4.2em/.8 var(--display); float: left; padding: 6px 10px 0 0; color: var(--ink); }
+.pull {
+  text-align: center;
+  font: italic 300 clamp(28px, 6vw, 48px)/1.25 var(--display);
+  max-width: 22ch; margin-inline: auto;
+  text-wrap: balance;
+}
+.signature { font: italic 400 30px/1 var(--display); }
+.vision { display: grid; gap: 32px; }
+.vision > div { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--ink); padding-top: 18px; }
+.vision h3 { font-size: 26px; font-weight: 400; }
+.vision p { color: var(--ink-soft); font-size: 14px; }
+@media (min-width: 760px) { .vision { grid-template-columns: repeat(3, 1fr); } }
+
+/* Commander */
+.order { display: grid; gap: 40px; padding-block: clamp(40px, 8vw, 88px) clamp(64px, 12vw, 120px); }
+@media (min-width: 960px) { .order { grid-template-columns: 1.3fr 1fr; gap: 72px; align-items: start; } }
+.order h1 { font-size: clamp(48px, 11vw, 88px); }
+.order h1 i { font-weight: 300; }
+.order .intro { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+.order .intro p { color: var(--ink-soft); max-width: 48ch; }
+.lines { display: flex; flex-direction: column; border-top: 1px solid var(--pale-silver); }
+.line {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 14px; align-items: center;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--pale-silver);
+}
+.line .ph { width: 64px; height: 80px; }
+.line .ph::after { inset: 4px; }
+.line .ph img { width: 26px; }
+.line .name { font: 400 20px/1.15 var(--display); }
+.line .unit { font-size: 12px; color: var(--ink-soft); letter-spacing: .06em; font-variant-numeric: tabular-nums; }
+.qty { display: flex; align-items: center; border: 1px solid var(--pale-silver); }
+.qty button { width: 38px; height: 40px; background: none; border: 0; cursor: pointer; font: 300 18px/1 var(--body); color: var(--ink); }
+.qty button:disabled { color: var(--pale-silver); cursor: default; }
+.qty output { width: 24px; text-align: center; font-variant-numeric: tabular-nums; font-size: 14px; }
+.line.on .qty { border-color: var(--ink); }
+
+.summary {
+  background: color-mix(in srgb, var(--champagne) 55%, var(--beige));
+  padding: 30px clamp(20px, 4vw, 36px);
+  display: flex; flex-direction: column; gap: 20px;
+}
+@media (min-width: 960px) { .summary { position: sticky; top: 108px; } }
+.summary h2 { font-size: 30px; }
+.summary ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; }
+.summary li { display: flex; justify-content: space-between; gap: 16px; font-variant-numeric: tabular-nums; }
+.summary .empty { color: var(--ink-soft); font-style: italic; font-family: var(--display); font-size: 18px; }
+.summary .total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--ink); padding-top: 14px; }
+.summary .total strong { font: 400 30px/1 var(--display); font-variant-numeric: tabular-nums; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font: 400 10px/1 var(--body); letter-spacing: .24em; text-transform: uppercase; color: var(--ink-soft); }
+.field input, .field textarea {
+  font: 300 15px/1.4 var(--body); color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--pale-silver);
+  border-radius: 0;
+  padding: 12px 14px;
+  width: 100%;
+}
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--ink); }
+.summary .btn { width: 100%; }
+.summary .btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.fine { font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+.fine strong { font-weight: 500; color: var(--ink); }
+
+.steps { display: grid; gap: 0; counter-reset: s; border-top: 1px solid var(--pale-silver); margin-top: 40px; }
+.steps li { list-style: none; counter-increment: s; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px; padding-block: 16px; border-bottom: 1px solid var(--pale-silver); font-size: 14px; color: var(--ink-soft); }
+.steps li::before { content: counter(s, upper-roman); font: italic 400 22px/1 var(--display); color: var(--ink); }
+.steps { padding: 0; margin-bottom: 0; }
+
+/* Pied de page */
+footer.site { background: var(--ink); color: var(--beige); padding-block: 64px 40px; }
+footer .cols { display: grid; gap: 40px; }
+footer .logo-word { font: 400 30px/1 var(--display); letter-spacing: .4em; text-transform: uppercase; }
+footer .slogan { font: italic 300 22px/1.3 var(--display); color: var(--champagne); margin-top: 10px; }
+footer h4 { margin: 0 0 14px; font: 400 10px/1 var(--body); letter-spacing: .3em; text-transform: uppercase; color: var(--metal-silver); }
+footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; }
+footer a { text-decoration: none; }
+footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
+footer .base { margin-top: 56px; padding-top: 22px; border-top: 1px solid color-mix(in srgb, var(--beige) 18%, transparent); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 11px; letter-spacing: .14em; color: var(--metal-silver); text-transform: uppercase; }
+@media (min-width: 760px) { footer .cols { grid-template-columns: 1.6fr 1fr 1fr 1fr; } }
+
+/* Bouton WhatsApp flottant */
+.wa-float {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: var(--ink); color: var(--beige);
+  display: grid; place-items: center;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 25%, transparent);
+  text-decoration: none;
+}
+.wa-float svg { width: 24px; height: 24px; fill: currentColor; }
+body.on-order .wa-float { display: none; }
+</style>
+
+<div class="announce"><span class="wide">Maison de voiles de luxe · </span>Abidjan · Commande sur WhatsApp</div>
+
+<header class="site">
+  <div class="wrap bar">
+    <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="drawer" aria-label="Ouvrir le menu"><i></i><i></i></button>
+    <a class="brand" href="#accueil" aria-label="Harii, accueil">
+      <img src="assets/logo-noir.png" alt="">
+      <span>Harii</span>
+    </a>
+    <nav class="main" aria-label="Navigation principale">
+      <a href="#accueil">Accueil</a>
+      <a href="#collection">Collection I</a>
+      <a href="#histoire">Notre histoire</a>
+      <a href="#commander">Commander</a>
+    </nav>
+    <div class="head-icons">
+      <a href="https://www.instagram.com/harii_co" target="_blank" rel="noopener" aria-label="Instagram @harii_co" class="hide-sm"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6"/></svg></a>
+      <a href="#commander" aria-label="Ma commande" class="bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><span id="bag-count" hidden>0</span></a>
     </div>
-    <div class="free-label">Tu veux ajouter quelque chose ?</div>
-    <textarea class="text-input" id="free1" rows="2" placeholder="Écris librement..."></textarea>
-    <div class="nav"><button class="btn-next" onclick="go(1,2)">Continuer</button></div>
   </div>
+  <nav class="drawer" id="drawer" hidden aria-label="Menu">
+    <a href="#accueil">Accueil</a>
+    <a href="#collection">Collection I</a>
+    <a href="#histoire">Notre histoire</a>
+    <a href="#commander">Commander</a>
+    <span class="eyebrow">@harii_co · Instagram · TikTok · Facebook</span>
+  </nav>
+</header>
 
-  <!-- Q2 -->
-  <div class="question-card" id="q2">
-    <div class="question-num">02 · 10</div>
-    <div class="question-text">Ta plus grande frustration avec les voiles qu'on trouve à Abidjan ?</div>
-    <div class="multi-note">Plusieurs réponses possibles</div>
-    <div class="options">
-      <div class="option" onclick="mul(this,'q2')">Les matières sont trop chaudes et synthétiques</div>
-      <div class="option" onclick="mul(this,'q2')">Pas assez de coloris élégants et neutres</div>
-      <div class="option" onclick="mul(this,'q2')">Les prix ne reflètent pas la qualité</div>
-      <div class="option" onclick="mul(this,'q2')">Rien de vraiment premium ou exclusif</div>
-      <div class="option" onclick="mul(this,'q2')">Le packaging et l'expérience d'achat laissent à désirer</div>
-      <div class="option" onclick="mul(this,'q2')">Je commande souvent à l'étranger — l'offre locale est insuffisante</div>
+<main>
+
+<!-- ============ ACCUEIL ============ -->
+<section data-page="accueil" id="page-accueil">
+
+  <div class="hero" data-photo="assets/photos/accueil-hero.jpg">
+    <div class="ph" aria-hidden="true"><img src="assets/logo-champagne.png" alt=""></div>
+    <div class="hero-copy">
+      <div class="hero-top">
+        <span class="eyebrow">Collection I · Abidjan</span>
+        <p class="lead">Des voiles pensés pour la femme qui porte son élégance avec assurance.</p>
+        <a class="btn pill" href="#collection">Découvrir la collection</a>
+      </div>
+      <h1 class="giant">Be Classy <span class="script">with</span> Harii</h1>
     </div>
-    <div class="free-label">Une frustration qu'on n'a pas mentionnée ?</div>
-    <textarea class="text-input" id="free2" rows="2" placeholder="Dis-nous tout..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(2,1)">←</button><button class="btn-next" onclick="go(2,3)">Continuer</button></div>
   </div>
 
-  <!-- Q3 -->
-  <div class="question-card" id="q3">
-    <div class="question-num">03 · 10</div>
-    <div class="question-text">Quelles matières tu préfères pour un voile quotidien ?</div>
-    <div class="multi-note">Plusieurs réponses possibles</div>
-    <div class="options">
-      <div class="option" onclick="mul(this,'q3')">🌿 Bamboo jersey — frais, doux, naturel</div>
-      <div class="option" onclick="mul(this,'q3')">💧 Jersey liquide — fluide, élégant, léger</div>
-      <div class="option" onclick="mul(this,'q3')">🌸 Mousseline — aérienne, légère</div>
-      <div class="option" onclick="mul(this,'q3')">✨ Soie ou satin — luxueux, brillant</div>
-      <div class="option" onclick="mul(this,'q3')">🍃 Coton premium — respirant, naturel</div>
-      <div class="option" onclick="mul(this,'q3')">🖤 Jersey opaque — pratique, couvrant</div>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Be Classy <i>with</i> Harii</span><b>\</b><span>Abidjan</span><b>\</b><span>Collection <i>I</i></span><b>\</b>
+      <span>Be Classy <i>with</i> Harii</span><b>\</b><span>Abidjan</span><b>\</b><span>Collection <i>I</i></span><b>\</b>
     </div>
-    <div class="free-label">Une matière qu'on n'a pas citée ?</div>
-    <textarea class="text-input" id="free3" rows="2" placeholder="Ex : lin, viscose..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(3,2)">←</button><button class="btn-next" onclick="go(3,4)">Continuer</button></div>
   </div>
 
-  <!-- Q4 — PRIX VOILE -->
-  <div class="question-card" id="q4">
-    <div class="question-num">04 · 10</div>
-    <div class="question-text">Quel prix tu es prête à mettre pour un voile vraiment premium ?</div>
-    <div class="question-sub">Sois honnête — ça nous aide vraiment 🤍</div>
-    <div class="options">
-      <div class="option" onclick="sel(this,'q4')">5 000 – 10 000 FCFA</div>
-      <div class="option" onclick="sel(this,'q4')">10 000 – 15 000 FCFA</div>
-      <div class="option" onclick="sel(this,'q4')">15 000 – 25 000 FCFA</div>
-      <div class="option" onclick="sel(this,'q4')">25 000 – 40 000 FCFA</div>
-      <div class="option" onclick="sel(this,'q4')">40 000 – 70 000 FCFA si la qualité le justifie</div>
+  <div class="shop">
+    <div class="wrap section-head">
+      <span class="eyebrow">Collection I</span>
+      <h2>Shop les voiles</h2>
     </div>
-    <div class="free-label">Un commentaire sur le prix ?</div>
-    <textarea class="text-input" id="free4" rows="2" placeholder="Ex : ça dépend de la matière, de l'occasion..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(4,3)">←</button><button class="btn-next" onclick="go(4,5)">Continuer</button></div>
-  </div>
-
-  <!-- Q5 — CONTENU BOX -->
-  <div class="question-card" id="q5">
-    <div class="question-num">05 · 10</div>
-    <div class="question-text">Qu'est-ce que tu voudrais trouver dans une box Harii ?</div>
-    <div class="question-sub">Imagine ton unboxing idéal</div>
-    <div class="multi-note">Plusieurs réponses possibles</div>
-    <div class="options">
-      <div class="option" onclick="mul(this,'q5')">🤍 Un voile premium (évidemment !)</div>
-      <div class="option" onclick="mul(this,'q5')">📌 Des épingles à voile élégantes assorties</div>
-      <div class="option" onclick="mul(this,'q5')">🧴 Un spray fixateur ou soin tissu</div>
-      <div class="option" onclick="mul(this,'q5')">💌 Une carte avec un message personnalisé</div>
-      <div class="option" onclick="mul(this,'q5')">🎀 Un bonnet sous-voile assorti</div>
-      <div class="option" onclick="mul(this,'q5')">✨ Un accessoire surprise (broche, clip...)</div>
-      <div class="option" onclick="mul(this,'q5')">🌸 Un sachet parfumé dans la boîte</div>
+    <div class="rail-wrap">
+      <button class="rail-arrow prev" type="button" data-rail="rail-voiles" data-dir="-1" aria-label="Pièces précédentes">‹</button>
+      <div class="rail" id="rail-voiles"></div>
+      <button class="rail-arrow next" type="button" data-rail="rail-voiles" data-dir="1" aria-label="Pièces suivantes">›</button>
     </div>
-    <div class="free-label">Un élément que tu rêverais de trouver ?</div>
-    <textarea class="text-input" id="free5" rows="2" placeholder="Ton idée de box idéale..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(5,4)">←</button><button class="btn-next" onclick="go(5,6)">Continuer</button></div>
+    <div class="rail-track" aria-hidden="true"><i data-bar="rail-voiles"></i></div>
   </div>
 
-  <!-- Q6 — BUDGET BOX -->
-  <div class="question-card" id="q6">
-    <div class="question-num">06 · 10</div>
-    <div class="question-text">Combien tu serais prête à mettre dans une box Harii complète ?</div>
-    <div class="question-sub">Box = voile + accessoires + packaging soigné 🤍</div>
-    <div class="options">
-      <div class="option" onclick="sel(this,'q6')">Moins de 15 000 FCFA</div>
-      <div class="option" onclick="sel(this,'q6')">15 000 – 25 000 FCFA</div>
-      <div class="option" onclick="sel(this,'q6')">25 000 – 40 000 FCFA</div>
-      <div class="option" onclick="sel(this,'q6')">40 000 – 60 000 FCFA</div>
-      <div class="option" onclick="sel(this,'q6')">Plus de 60 000 FCFA pour une box cérémonie luxe</div>
+  <div class="band silver" data-photo="assets/photos/bandeau-box.jpg">
+    <div class="ph" aria-hidden="true"><img src="assets/logo-champagne.png" alt=""><span class="ph-note">Photo du shoot à venir</span></div>
+    <div class="band-copy">
+      <span class="eyebrow">L'art d'offrir</span>
+      <h2><i>La Box Signature</i></h2>
+      <p>Notre coffret le plus complet, dans son écrin Harii.</p>
+      <a class="btn pill" href="#collection">Découvrir les box</a>
     </div>
-    <div class="free-label">Un commentaire sur le prix de la box ?</div>
-    <textarea class="text-input" id="free6" rows="2" placeholder="Ex : ça dépend du contenu, d'un cadeau..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(6,5)">←</button><button class="btn-next" onclick="go(6,7)">Continuer</button></div>
   </div>
 
-  <!-- Q7 -->
-  <div class="question-card" id="q7">
-    <div class="question-num">07 · 10</div>
-    <div class="question-text">Pour quelles occasions tu achètes un voile spécial ?</div>
-    <div class="multi-note">Plusieurs réponses possibles</div>
-    <div class="options">
-      <div class="option" onclick="mul(this,'q7')">💍 Mariage (invitée ou mariée)</div>
-      <div class="option" onclick="mul(this,'q7')">🌙 Aïd El-Fitr et Aïd El-Adha</div>
-      <div class="option" onclick="mul(this,'q7')">👔 Réunion professionnelle importante</div>
-      <div class="option" onclick="mul(this,'q7')">🎉 Anniversaire ou fête de famille</div>
-      <div class="option" onclick="mul(this,'q7')">✈️ Voyage ou sortie spéciale</div>
-      <div class="option" onclick="mul(this,'q7')">📸 Shooting photo ou contenu</div>
+  <div class="offers">
+    <div class="wrap">
+      <div class="offers-head">
+        <span class="eyebrow">Coffrets</span>
+        <h2>Nos <span class="script">box</span></h2>
+        <p>Pour vous, ou pour offrir. Chaque box arrive dans son écrin Harii.</p>
+      </div>
+      <div class="offer-grid">
+        <article class="offer light">
+          <h3>Box Essentielle</h3>
+          <div class="offer-price">15 000 <small>FCFA</small></div>
+          <p>L'essentiel Harii dans son écrin : papier de soie, pochette et carte de la maison.</p>
+          <button class="btn ghost" type="button" data-add="essentielle">Commander</button>
+        </article>
+        <article class="offer dark">
+          <span class="badge">Coup de<br>cœur</span>
+          <h3>Box Signature</h3>
+          <div class="offer-price">25 000 <small>FCFA</small></div>
+          <p>Notre coffret le plus complet, pensé pour offrir ou pour se faire plaisir.</p>
+          <button class="btn light" type="button" data-add="signature">Commander</button>
+        </article>
+      </div>
     </div>
-    <div class="free-label">Une autre occasion ?</div>
-    <textarea class="text-input" id="free7" rows="2" placeholder="Ex : Ramadan, remise de diplôme..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(7,6)">←</button><button class="btn-next" onclick="go(7,8)">Continuer</button></div>
   </div>
 
-  <!-- Q8 -->
-  <div class="question-card" id="q8">
-    <div class="question-num">08 · 10</div>
-    <div class="question-text">Quels coloris tu portes le plus souvent ?</div>
-    <div class="multi-note">Plusieurs réponses possibles</div>
-    <div class="options">
-      <div class="option" onclick="mul(this,'q8')">🤍 Tons neutres — beige, ivoire, crème</div>
-      <div class="option" onclick="mul(this,'q8')">🖤 Tons sombres — noir, gris anthracite</div>
-      <div class="option" onclick="mul(this,'q8')">🌸 Tons doux — rose poudré, champagne, nude</div>
-      <div class="option" onclick="mul(this,'q8')">🌿 Tons naturels — kaki, terracotta, camel</div>
-      <div class="option" onclick="mul(this,'q8')">💙 Tons froids — bleu, vert, lavande</div>
-      <div class="option" onclick="mul(this,'q8')">J'aime tout — ça dépend de l'humeur</div>
+  <div class="band" data-photo="assets/photos/bandeau-histoire.jpg">
+    <div class="ph" aria-hidden="true"><img src="assets/logo-champagne.png" alt=""><span class="ph-note">Portrait à venir</span></div>
+    <div class="band-copy">
+      <span class="eyebrow">Notre histoire</span>
+      <h2><i>Née à Abidjan</i></h2>
+      <p>Une maison qui assume ses racines africaines et le raffinement qu'elles inspirent.</p>
+      <a class="btn pill" href="#histoire">Lire notre histoire</a>
     </div>
-    <div class="free-label">Un coloris que tu cherches partout sans le trouver ?</div>
-    <textarea class="text-input" id="free8" rows="2" placeholder="Ex : bordeaux, vert kaki foncé..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(8,7)">←</button><button class="btn-next" onclick="go(8,9)">Continuer</button></div>
   </div>
 
-  <!-- Q9 -->
-  <div class="question-card" id="q9">
-    <div class="question-num">09 · 10</div>
-    <div class="question-text">À quel point l'expérience d'unboxing est importante pour toi ?</div>
-    <div class="question-sub">1 = pas important · 5 = très important</div>
-    <div class="scale" id="scale-q9">
-      <div class="scale-item" onclick="scl(this,'q9',1)">1</div>
-      <div class="scale-item" onclick="scl(this,'q9',2)">2</div>
-      <div class="scale-item" onclick="scl(this,'q9',3)">3</div>
-      <div class="scale-item" onclick="scl(this,'q9',4)">4</div>
-      <div class="scale-item" onclick="scl(this,'q9',5)">5</div>
+  <div class="block wrap manifesto">
+    <span class="eyebrow">La maison</span>
+    <blockquote>« L'élégance est une question de détail. »</blockquote>
+    <p>Harii est une maison de voiles de luxe née à Abidjan. Chaque pièce est choisie pour sa tombée, sa douceur et sa lumière, puis présentée comme un objet précieux : pliée à la main, glissée dans son papier de soie, accompagnée d'un mot de la maison.</p>
+    <div class="motif short" aria-hidden="true"></div>
+  </div>
+
+  <div class="quest">
+    <div class="wrap quest-inner">
+      <div class="note note-a">
+        <svg class="sticker" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5l4.5 13.5L42 23l-13.5 4.5L24 41l-4.5-13.5L6 23l13.5-4.5z"/></svg>
+        <h4>Tu en as assez</h4>
+        <ul><li>des voiles qui glissent</li><li>des finitions approximatives</li><li>des pièces toutes pareilles</li></ul>
+      </div>
+      <h2 class="quest-title">Harii est née pour la femme qui veut <span class="script">plus</span> que l'ordinaire.</h2>
+      <div class="note note-b">
+        <svg class="sticker" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 7c6 6 6 28 0 34M24 7c-6 6-6 28 0 34M7 24h34"/></svg>
+        <h4>Tu veux</h4>
+        <ul><li>un tombé qui sublime</li><li>des matières qui respirent</li><li>un écrin digne d'un cadeau</li></ul>
+      </div>
+      <a class="btn" href="#collection">Trouver mon voile</a>
     </div>
-    <div class="scale-labels"><span>Pas important</span><span>Très important</span></div>
-    <div class="free-label">Pourquoi c'est important (ou pas) pour toi ?</div>
-    <textarea class="text-input" id="free9" rows="2" placeholder="Ex : j'adore filmer mes unboxings..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(9,8)">←</button><button class="btn-next" onclick="go(9,10)">Continuer</button></div>
   </div>
 
-  <!-- Q10 -->
-  <div class="question-card" id="q10">
-    <div class="question-num">10 · 10</div>
-    <div class="question-text">Un mot, une phrase — qu'est-ce que tu veux ressentir en portant Harii ?</div>
-    <div class="question-sub">Dis-nous ce qui compte vraiment pour toi 🤍</div>
-    <textarea class="text-input" id="ans10" rows="4" placeholder="Écris librement..."></textarea>
-    <div class="nav"><button class="btn-prev" onclick="go(10,9)">←</button><button class="btn-next" onclick="done()">Envoyer 🤍</button></div>
+  <div class="block wa-band">
+    <div class="wrap" style="display:flex; flex-direction:column; align-items:center; gap:20px;">
+      <span class="eyebrow" style="color: var(--ink-soft)">Commande & conseil</span>
+      <h2>Votre voile vous attend</h2>
+      <p>Choisissez vos pièces, nous confirmons la disponibilité et la livraison avec vous sur WhatsApp.</p>
+      <a class="btn wa-link" href="#" target="_blank" rel="noopener" data-msg="Bonjour Harii, j'aimerais passer commande.">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3Z"/></svg>
+        Écrire sur WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COLLECTION I ============ -->
+<section data-page="collection" id="page-collection" hidden>
+  <div class="wrap col-intro">
+    <span class="eyebrow">Automne 2026</span>
+    <h1>Collection <i>I</i></h1>
+    <p>Trois voiles, deux coffrets. Une première collection courte et précise, pour composer une garde-robe de voiles qui dure.</p>
+    <div class="motif short" aria-hidden="true"></div>
   </div>
 
-  <!-- Results -->
-  <div class="results" id="results">
-    <div class="results-logo">harii</div>
-    <div class="line"></div>
-    <div class="results-title">"Merci d'avoir pris le temps."</div>
-    <div class="results-text">Tes réponses sont précieuses.<br>Tu fais partie des premières à façonner Harii.<br>La Collection I arrive en septembre 2025 — pensée pour toi. 🤍</div>
-    <div class="summary" id="summary"></div>
-    <button class="btn-copy" onclick="copy()">Copier mes réponses</button>
+  <div class="wrap">
+    <div class="group-title"><h2>Les voiles</h2><span class="eyebrow">3 pièces</span></div>
+    <div class="panels" id="panels-voiles"></div>
   </div>
 
-</div>
+  <div class="wrap" style="margin-top: clamp(64px, 12vw, 112px);">
+    <div class="group-title"><h2>Les box</h2><span class="eyebrow">2 coffrets</span></div>
+    <div class="grid two" id="grid-box"></div>
+  </div>
+
+  <div class="wrap care">
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <span class="eyebrow">Bon à savoir</span>
+      <h2 style="font-size: clamp(32px, 6vw, 46px);">Commander en <i style="font-weight:300">toute sérénité</i></h2>
+    </div>
+    <dl>
+      <div><dt>Commande</dt><dd>Ajoutez vos pièces, puis envoyez le récapitulatif sur WhatsApp. Nous confirmons la disponibilité avec vous.</dd></div>
+      <div><dt>Livraison</dt><dd>À Abidjan. Le délai et les frais selon votre commune sont confirmés sur WhatsApp.</dd></div>
+      <div><dt>Paiement</dt><dd>Les modalités vous sont communiquées lors de la confirmation de commande.</dd></div>
+      <div><dt>Entretien</dt><dd>Lavage délicat à la main, à froid. Repassage doux, sans vapeur directe sur le Rhinestone.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ============ NOTRE HISTOIRE ============ -->
+<section data-page="histoire" id="page-histoire" hidden>
+  <div class="story-hero">
+    <div class="ph" data-photo="assets/photos/fondatrice.jpg" aria-hidden="true"><img src="assets/logo-champagne.png" alt=""><span class="ph-note">Portrait de la fondatrice à venir</span></div>
+    <div class="copy">
+      <span class="eyebrow">Notre histoire</span>
+      <h1>Harii, <i>une histoire de femmes</i></h1>
+      <p style="color: var(--ink-soft); max-width: 44ch;">Une maison née à Abidjan, d'une passion pour le voile et d'une conviction : l'élégance africaine mérite sa propre signature.</p>
+    </div>
+  </div>
+
+  <div class="block wrap" style="display:grid; gap: clamp(56px, 10vw, 96px);">
+    <article class="chapter">
+      <span class="eyebrow">I · La fondatrice</span>
+      <h2>Tout commence par <i>un voile</i></h2>
+      <p class="first">Depuis toujours, le voile fait partie de ma vie. Je l'ai vu porté par ma mère, mes tantes, mes amies, chacune avec son style, sa manière de le nouer, sa façon d'en faire une signature. Mais en cherchant des pièces qui me ressemblaient vraiment, je trouvais rarement à Abidjan la qualité, la finition et le soin que j'attendais.</p>
+      <p>Harii est née de ce manque. J'ai voulu créer la maison que je cherchais : des voiles choisis un à un, une présentation digne d'un cadeau, et une relation directe avec chaque cliente.</p>
+    </article>
+
+    <p class="pull">« Être élégante, c'est se sentir soi-même, en mieux. »</p>
+
+    <article class="chapter">
+      <span class="eyebrow">II · Pourquoi Harii</span>
+      <h2>Le luxe, <i>ici et maintenant</i></h2>
+      <p>Les grandes maisons du voile sont souvent loin de nous. Harii fait le choix inverse : une maison ivoirienne, qui comprend le climat, les occasions et le rythme de vie des femmes d'ici, et qui leur offre un niveau d'exigence international.</p>
+      <p>Notre palette est douce et minérale, faite de beige, de rose champagne et d'argent. Nos pièces se portent au bureau, à un mariage, à la mosquée ou un vendredi entre amies.</p>
+    </article>
+
+    <div class="motif" aria-hidden="true"></div>
+
+    <div style="display:grid; gap: 28px;">
+      <div style="display:flex; flex-direction:column; gap:12px; align-items:center; text-align:center;">
+        <span class="eyebrow">III · La vision</span>
+        <h2 style="font-size: clamp(32px, 6vw, 46px);">Ce que Harii <i style="font-weight:300">construit</i></h2>
+      </div>
+      <div class="vision">
+        <div><h3>Une signature</h3><p>Faire de Harii un nom que l'on reconnaît à sa tombée, à ses couleurs et à son écrin.</p></div>
+        <div><h3>Une communauté</h3><p>Réunir des femmes qui partagent la même idée de l'élégance, d'Abidjan à toute l'Afrique de l'Ouest.</p></div>
+        <div><h3>Une fierté</h3><p>Montrer qu'une maison de luxe peut naître ici, avec une identité africaine assumée.</p></div>
+      </div>
+    </div>
+
+    <div style="text-align:center; display:flex; flex-direction:column; gap:20px; align-items:center;">
+      <span class="signature">Avec amour, Harii</span>
+      <a class="btn" href="#collection">Découvrir la Collection I</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMMANDER ============ -->
+<section data-page="commander" id="page-commander" hidden>
+  <div class="wrap order">
+    <div>
+      <div class="intro">
+        <span class="eyebrow">Commander</span>
+        <h1>Votre <i>sélection</i></h1>
+        <p>Choisissez vos pièces et leurs quantités. Votre récapitulatif s'ouvre ensuite dans WhatsApp, prêt à être envoyé à la maison.</p>
+      </div>
+      <div class="lines" id="lines"></div>
+      <ol class="steps">
+        <li>Composez votre sélection ci-dessus.</li>
+        <li>Envoyez le message pré-rempli sur WhatsApp.</li>
+        <li>Nous confirmons disponibilité, livraison et paiement avec vous.</li>
+      </ol>
+    </div>
+
+    <aside class="summary" aria-live="polite">
+      <h2>Récapitulatif</h2>
+      <ul id="sum-list"></ul>
+      <div class="total"><span class="eyebrow" style="color: var(--ink)">Total</span><strong id="sum-total">0 FCFA</strong></div>
+      <div class="field"><label for="f-name">Votre prénom</label><input id="f-name" type="text" autocomplete="given-name" placeholder="Aïcha"></div>
+      <div class="field"><label for="f-commune">Commune de livraison</label><input id="f-commune" type="text" placeholder="Cocody, Marcory, Yopougon…"></div>
+      <div class="field"><label for="f-note">Précision (facultatif)</label><textarea id="f-note" rows="2" placeholder="Couleur souhaitée, date, cadeau…"></textarea></div>
+      <a class="btn wa-link" id="order-btn" href="#" target="_blank" rel="noopener" aria-disabled="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3Z"/></svg>
+        Commander sur WhatsApp
+      </a>
+      <p class="fine">Numéro WhatsApp de la maison : <strong id="wa-display"></strong></p>
+    </aside>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="logo-word">Harii</div>
+        <div class="slogan">Be Classy with Harii</div>
+      </div>
+      <div><h4>Maison</h4><ul><li><a href="#collection">Collection I</a></li><li><a href="#histoire">Notre histoire</a></li><li><a href="#commander">Commander</a></li></ul></div>
+      <div><h4>Suivre</h4><ul>
+        <li><a href="https://www.instagram.com/harii_co" target="_blank" rel="noopener">Instagram @harii_co</a></li>
+        <li><a href="https://www.tiktok.com/@harii_co" target="_blank" rel="noopener">TikTok @harii_co</a></li>
+        <li><a href="https://www.facebook.com/harii_co" target="_blank" rel="noopener">Facebook @harii_co</a></li>
+      </ul></div>
+      <div><h4>Contact</h4><ul><li><a class="wa-link" href="#" target="_blank" rel="noopener" data-msg="Bonjour Harii !">WhatsApp</a></li><li>Abidjan, Côte d'Ivoire</li></ul></div>
+    </div>
+    <div class="base"><span>© 2026 Harii</span><span>Maison de voiles de luxe · Abidjan</span></div>
+  </div>
+</footer>
+
+<a class="wa-float wa-link" href="#" target="_blank" rel="noopener" aria-label="Écrire à Harii sur WhatsApp" data-msg="Bonjour Harii, j'ai une question.">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3Z"/></svg>
+</a>
+
 <script>
-const ans = {};
-const frees = {};
-const qs = [
-  'Style de port quotidien',
-  'Frustrations actuelles',
-  'Matières préférées',
-  'Budget voile premium',
-  'Contenu box idéale',
-  'Budget box complète',
-  'Occasions spéciales',
-  'Coloris préférés',
-  'Importance unboxing',
-  'Ce qu\'elle veut ressentir'
+/* ================================================================
+   À REMPLACER : numéro WhatsApp de Harii, format international
+   sans + ni espaces (ex. 2250701020304 pour +225 07 01 02 03 04).
+   ================================================================ */
+const WHATSAPP_NUMBER = "2250000000000";
+
+const PRODUCTS = [
+  { id: "liquide",    group: "voile", name: "Harii Le Liquide",    sub: "Voile fluide",      price: 12000, tag: "Nouveau",
+    desc: "Un tombé souple et léger qui épouse le visage. Le voile du quotidien, en version raffinée." },
+  { id: "dentelle",   group: "voile", name: "Harii La Dentelle",   sub: "Lace",              price: 12000, tag: "Nouveau",
+    desc: "Une bordure de dentelle délicate pour une allure romantique, du bureau aux cérémonies." },
+  { id: "rhinestone", group: "voile", name: "Harii Le Rhinestone", sub: "Strass",            price: 15000, tag: "Édition",
+    desc: "Des strass discrets qui accrochent la lumière. La pièce des grandes occasions." },
+  { id: "essentielle",group: "box",   name: "Box Essentielle",     sub: "Coffret",           price: 15000, tag: "Coffret",
+    desc: "L'essentiel Harii dans son écrin : papier de soie, pochette et carte de la maison." },
+  { id: "signature",  group: "box",   name: "Box Signature",       sub: "Coffret d'exception", price: 25000, tag: "Coffret",
+    desc: "Notre coffret le plus complet, pensé pour offrir ou pour se faire plaisir." }
 ];
-const total = 10;
 
-function go(from, to) {
-  if(from <= 9) {
-    const fid = document.getElementById('free'+from);
-    if(fid) frees['free'+from] = fid.value;
-  }
-  document.getElementById('q'+from).classList.remove('active');
-  if(to <= total) {
-    document.getElementById('q'+to).classList.add('active');
-  }
-  document.getElementById('progress').style.width = (to/total*100)+'%';
-  window.scrollTo(0,0);
-}
+const fcfa = n => n.toLocaleString("fr-FR").replace(/ | /g, " ") + " FCFA";
+const waUrl = msg => "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
+const LOGO = "assets/logo-champagne.png";
 
-function sel(el, q) {
-  el.closest('.options').querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
-  el.classList.add('selected');
-  ans[q] = el.textContent.trim();
-}
-
-function mul(el, q) {
-  el.classList.toggle('selected');
-  ans[q] = Array.from(el.closest('.options').querySelectorAll('.option.selected')).map(o=>o.textContent.trim());
-}
-
-function scl(el, q, v) {
-  el.closest('.scale').querySelectorAll('.scale-item').forEach(s=>s.classList.remove('selected'));
-  el.classList.add('selected');
-  ans[q] = v+'/5';
-}
-
-function done() {
-  ans['q10'] = document.getElementById('ans10').value || '—';
-  for(let i=1;i<=9;i++){
-    const fid = document.getElementById('free'+i);
-    if(fid) frees['free'+i] = fid.value;
-  }
-  document.getElementById('q10').classList.remove('active');
-
-  let html = '<div class="summary-title">Récapitulatif de tes réponses</div>';
-  for(let i=1;i<=total;i++){
-    const a = ans['q'+i];
-    const t = Array.isArray(a) ? a.join(' · ') : (a||'—');
-    const f = frees['free'+i];
-    html += `<div class="summary-item">
-      <div class="summary-q">${qs[i-1]}</div>
-      <div class="summary-a">${t}${f ? '<br><em style="color:#A5ABAB;font-size:11px">→ '+f+'</em>' : ''}</div>
+function card(p, withAdd) {
+  const el = document.createElement(withAdd ? "div" : "a");
+  el.className = "card";
+  if (!withAdd) el.href = "#collection";
+  el.innerHTML = `
+    <div class="ph" data-photo="assets/photos/${p.id}.jpg"><span class="tag">${p.tag}</span><img src="${LOGO}" alt=""><span class="ph-note">Photo à venir</span></div>
+    <div class="meta">
+      <h3>${p.name}<small>${p.sub}</small></h3>
+      <span class="price">${fcfa(p.price)}</span>
+      ${withAdd ? `<p class="desc">${p.desc}</p><button class="add" type="button" data-add="${p.id}">Commander</button>` : ""}
     </div>`;
-  }
-
-  document.getElementById('summary').innerHTML = html;
-  document.getElementById('results').classList.add('active');
-  document.getElementById('progress').style.width = '100%';
-  window.scrollTo(0,0);
+  return el;
 }
 
-function copy() {
-  let txt = 'QUESTIONNAIRE HARII — RÉPONSES\n\n';
-  for(let i=1;i<=total;i++){
-    const a = ans['q'+i];
-    const t = Array.isArray(a) ? a.join(' · ') : (a||'—');
-    const f = frees['free'+i];
-    txt += qs[i-1]+' :\n'+t+(f ? '\n→ '+f : '')+'\n\n';
-  }
-  navigator.clipboard.writeText(txt).then(()=>{
-    document.querySelector('.btn-copy').textContent='Copié ✓';
-    setTimeout(()=>document.querySelector('.btn-copy').textContent='Copier mes réponses',2000);
+// Rails accueil
+const RAILS = { "rail-voiles": "voile" };
+function railBar(rail) {
+  const bar = document.querySelector(`[data-bar="${rail.id}"]`);
+  const max = rail.scrollWidth - rail.clientWidth;
+  const ratio = Math.min(1, rail.clientWidth / rail.scrollWidth);
+  bar.style.width = (ratio * 100) + "%";
+  const track = bar.parentElement.clientWidth;
+  bar.style.transform = `translateX(${max > 0 ? (rail.scrollLeft / max) * track * (1 - ratio) : 0}px)`;
+  document.querySelectorAll(`.rail-arrow[data-rail="${rail.id}"]`).forEach(b => {
+    b.disabled = b.dataset.dir === "-1" ? rail.scrollLeft < 4 : rail.scrollLeft > max - 4;
   });
 }
+const allRails = () => Object.keys(RAILS).map(id => document.getElementById(id));
+Object.entries(RAILS).forEach(([id, group]) => {
+  const rail = document.getElementById(id);
+  PRODUCTS.filter(p => p.group === group).forEach(p => rail.appendChild(card(p, false)));
+  rail.addEventListener("scroll", () => railBar(rail), { passive: true });
+});
+document.querySelectorAll(".rail-arrow").forEach(b => b.addEventListener("click", () => {
+  const rail = document.getElementById(b.dataset.rail);
+  rail.scrollBy({ left: Number(b.dataset.dir) * rail.clientWidth * 0.8, behavior: "smooth" });
+}));
+window.addEventListener("resize", () => allRails().forEach(railBar));
+
+// Grilles collection
+const MOODS = { liquide: ["Au quotidien", "Fluide et facile"], dentelle: ["Romantique", "Tout en délicatesse"], rhinestone: ["Grandes occasions", "Pour briller"] };
+PRODUCTS.filter(p => p.group === "voile").forEach((p, i) => {
+  const el = document.createElement("article");
+  el.className = "panel tone-" + i;
+  el.innerHTML = `
+    <span class="panel-tab">${MOODS[p.id][0]}</span>
+    <div class="panel-body">
+      <div class="ph" data-photo="assets/photos/${p.id}.jpg"><span class="tag">${p.tag}</span><img src="${LOGO}" alt=""><span class="ph-note">Photo à venir</span></div>
+      <div class="panel-copy">
+        <span class="eyebrow">${MOODS[p.id][1]}</span>
+        <h3>${p.name}</h3>
+        <p>${p.desc}</p>
+        <div class="price">${fcfa(p.price)}</div>
+        <button class="btn" type="button" data-add="${p.id}">Commander</button>
+      </div>
+    </div>`;
+  document.getElementById("panels-voiles").appendChild(el);
+});
+PRODUCTS.filter(p => p.group === "box").forEach(p => document.getElementById("grid-box").appendChild(card(p, true)));
+
+// Commande
+const qty = Object.fromEntries(PRODUCTS.map(p => [p.id, 0]));
+const lines = document.getElementById("lines");
+PRODUCTS.forEach(p => {
+  const row = document.createElement("div");
+  row.className = "line";
+  row.dataset.id = p.id;
+  row.innerHTML = `
+    <div class="ph"><img src="${LOGO}" alt=""></div>
+    <div style="min-width:0"><div class="name">${p.name}</div><div class="unit">${fcfa(p.price)}</div></div>
+    <div class="qty">
+      <button type="button" data-d="-1" aria-label="Retirer un ${p.name}">−</button>
+      <output>0</output>
+      <button type="button" data-d="1" aria-label="Ajouter un ${p.name}">+</button>
+    </div>`;
+  lines.appendChild(row);
+});
+lines.addEventListener("click", e => {
+  const b = e.target.closest("button[data-d]");
+  if (!b) return;
+  const id = b.closest(".line").dataset.id;
+  qty[id] = Math.max(0, Math.min(20, qty[id] + Number(b.dataset.d)));
+  renderOrder();
+});
+
+const fName = document.getElementById("f-name");
+const fCommune = document.getElementById("f-commune");
+const fNote = document.getElementById("f-note");
+[fName, fCommune, fNote].forEach(i => i.addEventListener("input", renderOrder));
+
+function renderOrder() {
+  let total = 0;
+  const chosen = PRODUCTS.filter(p => qty[p.id] > 0);
+  lines.querySelectorAll(".line").forEach(row => {
+    const n = qty[row.dataset.id];
+    row.querySelector("output").textContent = n;
+    row.querySelector('[data-d="-1"]').disabled = n === 0;
+    row.classList.toggle("on", n > 0);
+  });
+  const list = document.getElementById("sum-list");
+  list.innerHTML = "";
+  chosen.forEach(p => {
+    total += p.price * qty[p.id];
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${qty[p.id]} × ${p.name}</span><span>${fcfa(p.price * qty[p.id])}</span>`;
+    list.appendChild(li);
+  });
+  if (!chosen.length) list.innerHTML = '<li class="empty">Aucune pièce sélectionnée pour le moment.</li>';
+  document.getElementById("sum-total").textContent = fcfa(total);
+  const count = Object.values(qty).reduce((a, b) => a + b, 0);
+  const bc = document.getElementById("bag-count");
+  bc.textContent = count; bc.hidden = count === 0;
+
+  const msg = [
+    "Bonjour Harii ✨",
+    "Je souhaite commander :",
+    ...chosen.map(p => `• ${qty[p.id]} × ${p.name} (${fcfa(p.price * qty[p.id])})`),
+    `Total : ${fcfa(total)}`,
+    fName.value.trim() && `Prénom : ${fName.value.trim()}`,
+    fCommune.value.trim() && `Livraison : ${fCommune.value.trim()}`,
+    fNote.value.trim() && `Précision : ${fNote.value.trim()}`,
+    "Merci !"
+  ].filter(Boolean).join("\n");
+  const btn = document.getElementById("order-btn");
+  btn.href = waUrl(msg);
+  btn.setAttribute("aria-disabled", chosen.length ? "false" : "true");
+}
+
+// Liens WhatsApp simples
+document.querySelectorAll(".wa-link[data-msg]").forEach(a => a.href = waUrl(a.dataset.msg));
+document.getElementById("wa-display").textContent = "+" + WHATSAPP_NUMBER.replace(/^(\d{3})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/, "$1 $2 $3 $4 $5 $6");
+
+// Boutons "Commander" de la collection
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-add]");
+  if (!b) return;
+  qty[b.dataset.add] = Math.max(1, qty[b.dataset.add]);
+  renderOrder();
+  location.hash = "commander";
+});
+
+
+// Photos : un fichier dans assets/photos/ ou une photo ajoutée en mode édition remplace le visuel provisoire
+const photoKey = el => el.dataset.photo.split("/").pop().replace(/\.[a-z]+$/i, "");
+function applyPhoto(el, url) {
+  el.querySelector(":scope > img.photo")?.remove();
+  el.classList.remove("has-photo");
+  if (el.classList.contains("hero")) document.body.classList.remove("hero-photo");
+  if (!url) return;
+  const img = new Image();
+  img.className = "photo"; img.alt = ""; img.decoding = "async";
+  img.onload = () => {
+    if (el.dataset.url !== url) return;
+    el.prepend(img); el.classList.add("has-photo");
+    if (el.classList.contains("hero")) document.body.classList.add("hero-photo");
+  };
+  img.src = url;
+}
+const customPhotos = {};
+function setPhoto(el) {
+  el.dataset.key = photoKey(el);
+  const url = customPhotos[el.dataset.key] || el.dataset.photo;
+  if (el.dataset.url === url) return;
+  el.dataset.url = url;
+  applyPhoto(el, url);
+}
+function loadPhotos(root) { root.querySelectorAll("[data-photo]").forEach(setPhoto); }
+loadPhotos(document);
+
+// Mode édition : visible seulement pour la propriétaire du site
+(async () => {
+  const [db, assets, user] = await Promise.all([window.claude?.use?.("db"), window.claude?.use?.("assets"), window.claude?.use?.("user")].map(p => Promise.resolve(p).catch(() => null)));
+  if (!db) return;
+  const photos = db.collection("photos");
+  photos.onSnapshot(snap => {
+    Object.keys(customPhotos).forEach(k => delete customPhotos[k]);
+    snap.docs.forEach(d => { const id = d.data()?.assetId; if (typeof id === "string") customPhotos[d.id] = "/_blob/" + id; });
+    loadPhotos(document);
+    document.querySelectorAll(".edit-chip .rm").forEach(b => b.hidden = !customPhotos[b.closest("[data-photo]").dataset.key]);
+  }, () => {});
+  const canEdit = assets && (user ? await user.canEdit() : false);
+  if (!canEdit) return;
+
+  const toggle = document.createElement("button");
+  toggle.type = "button"; toggle.className = "edit-toggle"; toggle.id = "edit-toggle";
+  toggle.textContent = "Mode édition";
+  document.body.appendChild(toggle);
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = "image/*"; input.hidden = true; input.id = "photo-input";
+  document.body.appendChild(input);
+  let target = null;
+
+  function addChips() {
+    document.querySelectorAll("[data-photo]").forEach(el => {
+      if (el.querySelector(":scope > .edit-chip")) return;
+      const chip = document.createElement("div");
+      chip.className = "edit-chip";
+      chip.innerHTML = '<button type="button" class="pick">Changer la photo</button><button type="button" class="rm">Retirer</button>';
+      chip.querySelector(".rm").hidden = !customPhotos[photoKey(el)];
+      el.appendChild(chip);
+    });
+  }
+  toggle.addEventListener("click", () => {
+    const on = document.body.classList.toggle("editing");
+    toggle.textContent = on ? "Terminer" : "Mode édition";
+    if (on) addChips();
+  });
+  window.addEventListener("hashchange", () => { if (document.body.classList.contains("editing")) addChips(); });
+
+  document.addEventListener("click", async e => {
+    const btn = e.target.closest(".edit-chip button");
+    if (!btn) return;
+    e.preventDefault(); e.stopPropagation();
+    const el = btn.closest("[data-photo]");
+    if (btn.classList.contains("pick")) { target = el; input.value = ""; input.click(); return; }
+    const key = el.dataset.key;
+    btn.textContent = "…";
+    try { await photos.doc(key).delete(); } catch (err) { toast("La photo n'a pas pu être retirée. Réessaie dans un instant."); }
+    btn.textContent = "Retirer";
+  }, true);
+
+  input.addEventListener("change", async () => {
+    const file = input.files[0];
+    if (!file || !target) return;
+    const el = target, key = el.dataset.key;
+    el.classList.add("uploading");
+    try {
+      const res = await assets.upload(file);
+      await photos.doc(key).set({ assetId: res.id, updatedAt: new Date().toISOString() });
+      toast("Photo enregistrée");
+    } catch (err) {
+      toast(err?.code === "quota_exceeded" ? "Plus de place pour les photos : retire-en une avant d'en ajouter." :
+            err?.code === "invalid_request" ? "Ce fichier n'est pas accepté. Choisis une photo JPG ou PNG." :
+            "La photo n'a pas pu être enregistrée. Réessaie dans un instant.");
+    }
+    el.classList.remove("uploading");
+  });
+
+  function toast(msg) {
+    let t = document.getElementById("toast");
+    if (!t) { t = document.createElement("div"); t.id = "toast"; t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(t._h); t._h = setTimeout(() => t.hidden = true, 3200);
+  }
+})();
+
+// Titre géant : ajusté à la largeur de l'écran
+function fitGiant() {
+  document.querySelectorAll(".giant").forEach(h => {
+    if (innerWidth <= 600) { h.style.fontSize = ""; return; }
+    h.style.fontSize = "200px";
+    const avail = h.parentElement.clientWidth - 24;
+    h.style.fontSize = Math.min(240, 200 * avail / h.scrollWidth) + "px";
+  });
+}
+window.addEventListener("resize", fitGiant);
+document.fonts?.ready.then(fitGiant);
+fitGiant();
+
+// En-tête plein au défilement
+const headerEl = document.querySelector("header.site");
+function solidHeader() { headerEl.classList.toggle("solid", window.scrollY > 10 || !drawer.hidden); }
+window.addEventListener("scroll", solidHeader, { passive: true });
+
+// Navigation par ancre
+const PAGES = ["accueil", "collection", "histoire", "commander"];
+const menuBtn = document.getElementById("menu-btn");
+const drawer = document.getElementById("drawer");
+function setMenu(open) {
+  drawer.hidden = !open;
+  menuBtn.setAttribute("aria-expanded", String(open));
+  menuBtn.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
+}
+menuBtn.addEventListener("click", () => { setMenu(drawer.hidden); solidHeader(); });
+
+function route() {
+  const page = PAGES.includes(location.hash.slice(1)) ? location.hash.slice(1) : "accueil";
+  document.querySelectorAll("section[data-page]").forEach(s => s.hidden = s.dataset.page !== page);
+  document.querySelectorAll("nav a").forEach(a => {
+    if (a.getAttribute("href") === "#" + page) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+  document.body.classList.toggle("on-order", page === "commander");
+  document.body.classList.toggle("on-home", page === "accueil");
+  solidHeader();
+  setMenu(false);
+  window.scrollTo(0, 0);
+  if (page === "accueil") requestAnimationFrame(() => { allRails().forEach(railBar); fitGiant(); });
+}
+window.addEventListener("hashchange", route);
+route();
+renderOrder();
 </script>
+
 </body>
 </html>

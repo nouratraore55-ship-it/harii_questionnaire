@@ -1,0 +1,13 @@
+Photos du site Harii
+Déposez vos photos ici, en .jpg, avec exactement ces noms :
+
+Grandes photos de fond (format paysage, au moins 2000 px de large) :
+  accueil-hero.jpg       grand visuel en haut de l'accueil
+  bandeau-box.jpg        bandeau « La Box Signature »
+  bandeau-histoire.jpg   bandeau « Née à Abidjan »
+  fondatrice.jpg         portrait, page Notre histoire (format portrait)
+
+Photos produits (format presque carré, au moins 1200 px) :
+  liquide.jpg  dentelle.jpg  rhinestone.jpg  essentielle.jpg  signature.jpg
+
+Une photo absente = le visuel provisoire beige avec le monogramme reste affiché.
